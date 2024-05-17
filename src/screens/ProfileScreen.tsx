@@ -14,6 +14,8 @@ import {
   StyleSheet,
   I18nManager
 } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Actions
 import * as pagesActions from '../redux/actions/pagesActions'
@@ -24,6 +26,8 @@ import { setStartSettings } from '../redux/actions/appActions'
 // Components
 import Icon from '../components/Icon'
 import Spinner from '../components/Spinner'
+
+const Stack = createNativeStackNavigator();
 
 const styles = StyleSheet.create({
   container: {
@@ -113,6 +117,21 @@ const styles = StyleSheet.create({
     color: theme.$menuIconsColor
   }
 })
+
+function InformationAboutApplication({ navigation }) {
+  const iconType = I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
+
+  return (
+    <TouchableOpacity
+    onPress={() => navigation.navigate('ApplicationInformation')}
+    style={styles.signInBtnContainer}>
+    <Text style={styles.signInBtnText}>{i18n.t('Information')}</Text>
+    <View style={styles.IconNameWrapper}>
+      <Icon name={iconType} style={styles.arrowIcon} />
+    </View>
+  </TouchableOpacity>
+  );
+}
 
 export class ProfileEdit extends Component {
   componentDidMount() {
@@ -212,6 +231,15 @@ export class ProfileEdit extends Component {
             </View>
           </TouchableOpacity>
         )}
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ApplicationInformation')}
+            style={styles.signInBtnContainer}>
+            <Text style={styles.signInBtnText}>{i18n.t('Information about Application')}</Text>
+            <View style={styles.IconNameWrapper}>
+              <Icon name={this.iconType} style={styles.arrowIcon} />
+            </View>
+          </TouchableOpacity>
       </>
     )
   }
@@ -358,7 +386,7 @@ export class ProfileEdit extends Component {
   }
 
   render() {
-    const { profile, pages, auth, cart, settings } = this.props
+    const { profile, pages, auth, cart, settings, nav } = this.props
 
     if (auth.fetching) {
       return <Spinner visible />
@@ -369,6 +397,8 @@ export class ProfileEdit extends Component {
         {this.renderSignedIn(auth, cart)}
 
         {settings.languageCurrencyFeatureFlag && this.renderSettings(settings)}
+
+        {/* {InformationAboutApplication(nav)} */}
 
         {auth.logged && this.renderSignedInMenu()}
 

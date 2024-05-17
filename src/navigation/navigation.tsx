@@ -54,6 +54,8 @@ import SocialLogin from '../screens/SocialLogin'
 import AllProductReviews from '../screens/AllProductReviews'
 import DatePickerScreen from '../screens/DatePickerScreen'
 import { StripePaymentProvider } from '../screens/StripePaymentProvider'
+
+import ApplicationInformation from '../screens/ApplicationInformation'
 import { isDarkBackground } from '../utils'
 
 Icon.loadFont()
@@ -198,6 +200,7 @@ const CartSection = () => {
         name={'SettlementsCompleteWebView'}
         component={SettlementsCompleteWebView}
       />
+      
     </Stack.Navigator>
   )
 }
@@ -251,6 +254,11 @@ const ProfileSection = () => {
         name={'CurrencySelection'}
         component={CurrencySelection}
         options={{ title: i18n.t('Currency') }}
+      />
+      <Stack.Screen
+        name={'ApplicationInformation'}
+        component={ApplicationInformation}
+        options={{ title: i18n.t('Information about Application') }}
       />
       <Stack.Screen
         name={'ProfileEdit'}
@@ -307,6 +315,7 @@ const ProfileSection = () => {
         component={VendorManageAddProductStep3}
         options={{ title: i18n.t('') }}
       />
+      
     </Stack.Navigator>
   )
 }
