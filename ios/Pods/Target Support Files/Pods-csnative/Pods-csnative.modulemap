@@ -1,0 +1,6 @@
+module Pods_csnative {
+  umbrella header "Pods-csnative-umbrella.h"
+
+  export *
+  module * { export * }
+}

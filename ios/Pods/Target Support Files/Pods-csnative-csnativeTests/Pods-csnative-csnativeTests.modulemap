@@ -1,0 +1,6 @@
+module Pods_csnative_csnativeTests {
+  umbrella header "Pods-csnative-csnativeTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

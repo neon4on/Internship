@@ -1,0 +1,8 @@
+{
+  "": {
+    "language": "ru",
+    "plural-forms": "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
+  },
+  "Sorry": "Извините",
+  "We couldn't load this page right now. Our server may be unavailable, or it could be a problem with your Internet connection.": "Не удалось загрузить эту страницу. Возможно, наш сервер недоступен или возникла проблема с вашим интернет-соеднинением."
+}
