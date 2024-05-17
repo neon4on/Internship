@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Multivendor</string>
+	<string>[EcomLabs]</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -35,10 +35,10 @@
 			</dict>
 		</dict>
 	</dict>
-        <key>NSCameraUsageDescription</key>
+	<key>NSCameraUsageDescription</key>
 	<string>Camera Use Access Warning</string>
-        <key>NSLocationWhenInUseUsageDescription</key>
-        <string></string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library Access Warning</string>
 	<key>UIAppFonts</key>
@@ -71,9 +71,9 @@
 	<array>
 		<string>armv7</string>
 	</array>
-        <key>UIRequiresFullScreen</key>
-        <true/>	
-        <key>UIStatusBarHidden</key>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UIStatusBarHidden</key>
 	<false/>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDarkContent</string>
@@ -89,7 +89,7 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>CFBundleAllowMixedLocalizations</key>
+    <key>CFBundleAllowMixedLocalizations</key>
     <string>true</string>
 </dict>
 </plist>

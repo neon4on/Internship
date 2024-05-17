@@ -46,14 +46,8 @@ export default {
   $mediumGrayColor: '#B8B8B8',
   $grayColor: '#FAFAFA',
 
-  // Color of swiper dots.
-  $dotsSwiperColor: '#0085FE',
-
   // The radius of the rounding of buttons and form elements.
   $borderRadius: 8,
-
-  // Padding from the edges of the screen.
-  $containerPadding: 20,
 
   // Discount label background on product.
   $productDiscountColor: '#EAA944',
@@ -63,16 +57,19 @@ export default {
   $productBorderColor: '#FFF',
 
   // Border color for menu items.
-  $menuItemsBorderColor: '#f3f3f3',
+  $menuItemsBorderColor: '#D6D6D6',
 
   // Icon color for menu items.
-  $menuIconsColor: '#d3d3d3',
+  $menuIconsColor: '#D3D3D3',
 
   // Text color for menu items.
   $menuTextColor: '#424040',
 
   // Category background color.
   $categoriesBackgroundColor: '#FAFAFA',
+
+  // Color of swiper dots.
+  $dotsSwiperColor: '#0085FE',
 
   // The color of the title on the category screen.
   $categoriesHeaderColor: '#000',
@@ -88,5 +85,8 @@ export default {
   $discussionMessageColor: '#808080',
 
   // Store logo size 760x240.
-  $logoUrl: 'https://mobile.mve.demo.cs-cart.com/images/logos/logo-transparent.png',
+  $logoUrl: '',
+
+  // Container padding.
+  $containerPadding: 20,
 };
