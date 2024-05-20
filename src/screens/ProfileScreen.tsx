@@ -55,6 +55,10 @@ const darkTheme = {
     backgroundColor: '#333',
     borderColor: '#444',
   },
+  blockContainer: {
+    backgroundColor: '#404040',
+    borderColor: '#444',
+  },
   sectionText: {
     color: '#ccc',
   },
@@ -270,7 +274,7 @@ export class ProfileEdit extends Component {
     return (
       <>
         {(settings.languages.length > 1 || settings.currencies.length > 1) && (
-          <View style={[styles.signInSectionContainer, themeStyles.sectionContainer]}>
+          <View style={[styles.signInSectionContainer, themeStyles.blockContainer]}>
             <Text style={[styles.signInSectionText, themeStyles.sectionText]}>
               {i18n.t('Settings').toUpperCase()}
             </Text>
@@ -330,7 +334,6 @@ export class ProfileEdit extends Component {
             <Text
               style={[
                 styles.signInBtnText,
-                styles.toggleButtonText,
                 themeStyles.sectionText
               ]}
             >
@@ -356,8 +359,8 @@ export class ProfileEdit extends Component {
 
     return (
       <View>
-        <View style={[styles.signInSectionContainer, themeStyles.sectionContainer]}>
-          <Text style={styles.signInSectionText}>
+        <View style={[styles.signInSectionContainer, themeStyles.blockContainer]}>
+          <Text style={[styles.signInSectionText, themeStyles.sectionText]}>
             {i18n.t('Pages').toUpperCase()}
           </Text>
         </View>
