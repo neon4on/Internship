@@ -89,7 +89,7 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-    <key>CFBundleAllowMixedLocalizations</key>
-    <string>true</string>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<string>true</string>
 </dict>
 </plist>

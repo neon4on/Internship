@@ -14,6 +14,8 @@ import {
   StyleSheet,
   I18nManager,
   Switch,
+  StatusBar,
+  SafeAreaView
 } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -40,6 +42,9 @@ const lightTheme = {
   text: {
     color: '#000',
   },
+  safeArea: {
+    backgroundColor: '#fff',
+  },
 };
 
 const darkTheme = {
@@ -62,6 +67,12 @@ const darkTheme = {
   iconColor: {
     color: '#ccc',
   },
+  safeArea: {
+    backgroundColor: '#000',
+  },
+  container: {
+    backgroundColor: '#000',
+  },
 };
 const styles = StyleSheet.create({
   toggleButton: {
@@ -80,10 +91,11 @@ const styles = StyleSheet.create({
   toggleButtonTextActive: {
     color: 'white',
   },
-
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff'
   },
   logo: {
     resizeMode: 'contain',
@@ -489,18 +501,21 @@ export class ProfileEdit extends Component {
       return <Spinner visible />
     }
 
+    const isLightBackground = theme === 'light';
+    const statusBarStyle = isLightBackground ? 'dark-content' : 'light-content';
+    const statusBarBackgroundColor = isLightBackground ? '#FFFFFF' : '#000000';
+
+
     return (
+      <SafeAreaView style={[styles.safeArea, themeStyles.safeArea]}>
       <ScrollView style={[styles.container, themeStyles.container]}>
         {this.renderSignedIn(auth, cart, themeStyles)}
-
         {settings.languageCurrencyFeatureFlag && this.renderSettings(settings, themeStyles)}
-
         {auth.logged && this.renderSignedInMenu(themeStyles)}
-
         {profile.user_type === USER_TYPE_VENDOR && this.renderVendorFields(themeStyles)}
-
         {this.renderPages(pages, themeStyles)}
       </ScrollView>
+    </SafeAreaView>
     )
   }
 }
