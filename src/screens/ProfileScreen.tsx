@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import i18n from '../utils/i18n'
@@ -12,10 +12,13 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  I18nManager
+  I18nManager,
+  Switch,
 } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CheckBox from '@react-native-community/checkbox';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Actions
 import * as pagesActions from '../redux/actions/pagesActions'
@@ -27,9 +30,57 @@ import { setStartSettings } from '../redux/actions/appActions'
 import Icon from '../components/Icon'
 import Spinner from '../components/Spinner'
 
+
 const Stack = createNativeStackNavigator();
 
+const lightTheme = {
+  container: {
+    backgroundColor: '#fff',
+  },
+  text: {
+    color: '#000',
+  },
+};
+
+const darkTheme = {
+  text: {
+    color: '#fff',
+  },
+  sectionContainer: {
+    backgroundColor: '#333',
+    borderColor: '#444',
+  },
+  sectionText: {
+    color: '#ccc',
+  },
+  buttonContainer: {
+    borderColor: '#444',
+  },
+  buttonText: {
+    color: '#fff',
+  },
+  iconColor: {
+    color: '#ccc',
+  },
+};
 const styles = StyleSheet.create({
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  toggleButtonText: {
+    fontSize: 16,
+  },
+  toggleButtonActive: {
+    backgroundColor: 'gray',
+  },
+  toggleButtonTextActive: {
+    color: 'white',
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#fff'
@@ -118,33 +169,42 @@ const styles = StyleSheet.create({
   }
 })
 
-function InformationAboutApplication({ navigation }) {
-  const iconType = I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
-
-  return (
-    <TouchableOpacity
-    onPress={() => navigation.navigate('ApplicationInformation')}
-    style={styles.signInBtnContainer}>
-    <Text style={styles.signInBtnText}>{i18n.t('Information')}</Text>
-    <View style={styles.IconNameWrapper}>
-      <Icon name={iconType} style={styles.arrowIcon} />
-    </View>
-  </TouchableOpacity>
-  );
-}
-
 export class ProfileEdit extends Component {
-  componentDidMount() {
+  state = {
+    theme: 'light',
+    isToggled: false,
+  };
+  
+  toggleTheme = async () => {
+    const { theme } = this.state;
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    await AsyncStorage.setItem('theme', newTheme);
+    await AsyncStorage.setItem('isToggled', JSON.stringify(newTheme === 'dark'));
+    this.setState({ theme: newTheme });
+    return newTheme;
+  };
+  
+
+  async componentDidMount() {
     const { pagesActions, settings } = this.props
     pagesActions.fetch(settings.layoutId)
     if (!settings.languageCurrencyFeatureFlag) {
       setStartSettings(settings.selectedLanguage, settings.selectedCurrency)
     }
+
+    const theme = await AsyncStorage.getItem('theme');
+    if (theme) {
+      this.setState({ theme });
+    }
+    const isToggled = await AsyncStorage.getItem('isToggled');
+    if (isToggled !== null) {
+      this.setState({ isToggled: JSON.parse(isToggled) });
+    }
   }
 
   iconType = I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
 
-  renderVendorFields() {
+  renderVendorFields(themeStyles) {
     const { navigation } = this.props
 
     return (
@@ -192,13 +252,14 @@ export class ProfileEdit extends Component {
     )
   }
 
-  renderSettings(settings) {
+  renderSettings(settings, themeStyles) {
     const { navigation } = this.props
+
     return (
       <>
         {(settings.languages.length > 1 || settings.currencies.length > 1) && (
-          <View style={styles.signInSectionContainer}>
-            <Text style={styles.signInSectionText}>
+          <View style={[styles.signInSectionContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInSectionText, themeStyles.sectionText]}>
               {i18n.t('Settings').toUpperCase()}
             </Text>
           </View>
@@ -207,9 +268,9 @@ export class ProfileEdit extends Component {
         {settings.languages.length > 1 && (
           <TouchableOpacity
             onPress={() => navigation.navigate('LanguageSelection')}
-            style={styles.signInBtnContainer}>
-            <Text style={styles.signInBtnText}>{i18n.t('Language')}</Text>
-            <View style={styles.IconNameWrapper}>
+            style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Language')}</Text>
+            <View style={[styles.IconNameWrapper]}>
               <Text style={styles.hintText}>
                 {settings.selectedLanguage.langCode.toUpperCase()}
               </Text>
@@ -221,8 +282,8 @@ export class ProfileEdit extends Component {
         {settings.currencies.length > 1 && (
           <TouchableOpacity
             onPress={() => navigation.navigate('CurrencySelection')}
-            style={styles.signInBtnContainer}>
-            <Text style={styles.signInBtnText}>{i18n.t('Currency')}</Text>
+            style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Currency')}</Text>
             <View style={styles.IconNameWrapper}>
               <Text style={styles.hintText}>
                 {settings.selectedCurrency.symbol.toUpperCase()}
@@ -234,22 +295,56 @@ export class ProfileEdit extends Component {
 
           <TouchableOpacity
             onPress={() => navigation.navigate('ApplicationInformation')}
-            style={styles.signInBtnContainer}>
-            <Text style={styles.signInBtnText}>{i18n.t('Information about Application')}</Text>
+            style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Information about Application')}</Text>
             <View style={styles.IconNameWrapper}>
               <Icon name={this.iconType} style={styles.arrowIcon} />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.signInBtnContainer,
+              styles.toggleButton,
+              this.state.theme === 'dark',
+              themeStyles.sectionContainer,
+            ]}
+            onPress={async () => {
+              const newTheme = await this.toggleTheme();
+              const themeStyles = newTheme === 'light' ? lightTheme : darkTheme;
+              this.setState({ themeStyles });
+            }}
+          >
+            <Text
+              style={[
+                styles.signInBtnText,
+                styles.toggleButtonText,
+                themeStyles.sectionText
+              ]}
+            >
+              {i18n.t('Set night theme')}
+            </Text>
+            <View style={styles.IconNameWrapper}>
+              <Switch
+                value={this.state.theme === 'dark'}
+                onValueChange={async () => {
+                  const newTheme = await this.toggleTheme();
+                  const themeStyles = newTheme === 'light' ? lightTheme : darkTheme;
+                  this.setState({ themeStyles });
+                }}
+              />
             </View>
           </TouchableOpacity>
       </>
     )
   }
 
-  renderPages = pages => {
+  renderPages = (pages,themeStyles) => {
     const { navigation } = this.props
 
     return (
       <View>
-        <View style={styles.signInSectionContainer}>
+        <View style={[styles.signInSectionContainer, themeStyles.sectionContainer]}>
           <Text style={styles.signInSectionText}>
             {i18n.t('Pages').toUpperCase()}
           </Text>
@@ -258,7 +353,7 @@ export class ProfileEdit extends Component {
           return (
             <TouchableOpacity
               key={index}
-              style={styles.signInBtnContainer}
+              style={[styles.signInBtnContainer, themeStyles.sectionContainer]}
               onPress={() =>
                 registerDrawerDeepLinks(
                   {
@@ -270,7 +365,7 @@ export class ProfileEdit extends Component {
                   navigation
                 )
               }>
-              <Text style={styles.signInBtnText}>{page.page}</Text>
+              <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{page.page}</Text>
               <Icon name={this.iconType} style={styles.arrowIcon} />
             </TouchableOpacity>
           )
@@ -279,7 +374,7 @@ export class ProfileEdit extends Component {
     )
   }
 
-  renderUserInformation = cart => {
+  renderUserInformation = (cart, themeStyles) => {
     if (
       cart.user_data.b_firstname ||
       cart.user_data.b_lastname ||
@@ -291,10 +386,10 @@ export class ProfileEdit extends Component {
             cart.user_data.b_lastname ||
             cart.user_data.email) && (
             <View style={styles.signInInfo}>
-              <Text style={styles.userNameText} numberOfLines={2}>
+              <Text style={[styles.userNameText, themeStyles.text]} numberOfLines={2}>
                 {cart.user_data.b_firstname} {cart.user_data.b_lastname}
               </Text>
-              <Text style={styles.userMailText}>{cart.user_data.email}</Text>
+              <Text style={[styles.userMailText, themeStyles.text]}>{cart.user_data.email}</Text>
             </View>
           )}
         </>
@@ -303,7 +398,7 @@ export class ProfileEdit extends Component {
     return null
   }
 
-  renderSignedIn = (auth, cart) => {
+  renderSignedIn = (auth, cart, themeStyles) => {
     const { navigation } = this.props
 
     return (
@@ -314,22 +409,22 @@ export class ProfileEdit extends Component {
           )}
         </View>
         {!auth.logged ? (
-          <View style={styles.signInButtons}>
+          <View style={[styles.signInButtons, themeStyles.sectionContainer]}>
             <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
-              style={{ ...styles.btn, backgroundColor: '#4fbe31' }}>
-              <Text style={{ ...styles.btnText, color: '#fff' }}>
+              style={[styles.btn, {backgroundColor: '#4fbe31' }]}>
+              <Text style={[styles.btnText, themeStyles.buttonText]}>
                 {i18n.t('Sign in')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.navigate('Registration')}
-              style={styles.btn}>
-              <Text style={styles.btnText}>{i18n.t('Registration')}</Text>
+              style={[styles.btn, {backgroundColor: 'lightgreen' }]}>
+              <Text style={[styles.btnText, themeStyles.buttonText]}>{i18n.t('Registration')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          this.renderUserInformation(cart)
+          this.renderUserInformation(cart, themeStyles)
         )}
       </>
     )
@@ -341,13 +436,13 @@ export class ProfileEdit extends Component {
     await authActions.logout()
   }
 
-  renderSignedInMenu = () => {
+  renderSignedInMenu = (themeStyles) => {
     const { navigation } = this.props
 
     return (
       <>
-        <View style={styles.signInSectionContainer}>
-          <Text style={styles.signInSectionText}>
+        <View style={[styles.signInSectionContainer, themeStyles.sectionContainer]}>
+          <Text style={[styles.signInSectionText, themeStyles.sectionText]}>
             {i18n.t('Buyer').toUpperCase()}
           </Text>
         </View>
@@ -387,24 +482,24 @@ export class ProfileEdit extends Component {
 
   render() {
     const { profile, pages, auth, cart, settings, nav } = this.props
+    const { theme } = this.state;
+    const themeStyles = theme === 'light' ? lightTheme : darkTheme;
 
     if (auth.fetching) {
       return <Spinner visible />
     }
 
     return (
-      <ScrollView style={styles.container}>
-        {this.renderSignedIn(auth, cart)}
+      <ScrollView style={[styles.container, themeStyles.container]}>
+        {this.renderSignedIn(auth, cart, themeStyles)}
 
-        {settings.languageCurrencyFeatureFlag && this.renderSettings(settings)}
+        {settings.languageCurrencyFeatureFlag && this.renderSettings(settings, themeStyles)}
 
-        {/* {InformationAboutApplication(nav)} */}
+        {auth.logged && this.renderSignedInMenu(themeStyles)}
 
-        {auth.logged && this.renderSignedInMenu()}
+        {profile.user_type === USER_TYPE_VENDOR && this.renderVendorFields(themeStyles)}
 
-        {profile.user_type === USER_TYPE_VENDOR && this.renderVendorFields()}
-
-        {this.renderPages(pages)}
+        {this.renderPages(pages, themeStyles)}
       </ScrollView>
     )
   }

@@ -55,6 +55,7 @@ import AllProductReviews from '../screens/AllProductReviews'
 import DatePickerScreen from '../screens/DatePickerScreen'
 import { StripePaymentProvider } from '../screens/StripePaymentProvider'
 
+import ThemeSelection from '../screens/ThemeSelection'
 import ApplicationInformation from '../screens/ApplicationInformation'
 import { isDarkBackground } from '../utils'
 
@@ -259,6 +260,11 @@ const ProfileSection = () => {
         name={'ApplicationInformation'}
         component={ApplicationInformation}
         options={{ title: i18n.t('Information about Application') }}
+      />
+      <Stack.Screen
+        name={'ThemeSelection'}
+        component={ApplicationInformation}
+        options={{ title: i18n.t('Set night theme') }}
       />
       <Stack.Screen
         name={'ProfileEdit'}
