@@ -350,6 +350,15 @@ export class ProfileEdit extends Component {
               />
             </View>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ReviewsScreen')}
+            style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Descriptions of vendor')}</Text>
+            <View style={styles.IconNameWrapper}>
+              <Icon name={this.iconType} style={styles.arrowIcon} />
+            </View>
+          </TouchableOpacity>
       </>
     )
   }
