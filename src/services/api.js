@@ -30,6 +30,7 @@ AxiosInstance.interceptors.request.use(conf => {
       state.auth.token
     )}:`
   }
+  console.log(newConf)
   return newConf
 })
 
@@ -37,18 +38,22 @@ AxiosInstance.interceptors.response.use(
   config => config,
   error => {
     if (error?.response?.status === 401) {
+      console.log("Ошибка 401 (Unauthorized):", error);
       store.dispatch({
         type: AUTH_LOGOUT
-      })
+      });
     } else if (error?.response?.status === 408 || error.code === 'ECONNABORTED') {
-      console.log(`A time happend on url ${error.config.url}`)
+      console.log("Ошибка таймаута:", error);
+      console.log(`Произошел тайм-аут запроса к URL ${error.config.url}`);
     } else if (error?.response?.status === 404) {
+      console.log("Ошибка 404 (Not Found):", error);
       store.dispatch({
         type: SHOP_CLOSED
-      })
+      });
+    } else {
+      console.log("Другая ошибка:", error);
     }
-    console.log(error)
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
 )
 

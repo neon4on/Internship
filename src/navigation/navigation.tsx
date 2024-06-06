@@ -56,6 +56,7 @@ import DatePickerScreen from '../screens/DatePickerScreen'
 import { StripePaymentProvider } from '../screens/StripePaymentProvider'
 
 import ReviewsScreen from '../screens/ReviewsScreen'
+import SubmitReviewScreen from '../screens/SubmitReviewScreen'
 import ApplicationInformation from '../screens/ApplicationInformation'
 import { isDarkBackground } from '../utils'
 
@@ -264,6 +265,11 @@ const ProfileSection = () => {
       <Stack.Screen
         name={'ReviewsScreen'}
         component={ReviewsScreen}
+        options={{ title: i18n.t('Descriptions of vendor') }}
+      />
+      <Stack.Screen
+        name={'SubmitReviewScreen'}
+        component={SubmitReviewScreen}
         options={{ title: i18n.t('Descriptions of vendor') }}
       />
       <Stack.Screen
