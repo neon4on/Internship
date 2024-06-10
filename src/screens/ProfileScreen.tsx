@@ -359,6 +359,15 @@ export class ProfileEdit extends Component {
               <Icon name={this.iconType} style={styles.arrowIcon} />
             </View>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('StaffScreen')}
+            style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Staff')}</Text>
+            <View style={styles.IconNameWrapper}>
+              <Icon name={this.iconType} style={styles.arrowIcon} />
+            </View>
+          </TouchableOpacity>
       </>
     )
   }
