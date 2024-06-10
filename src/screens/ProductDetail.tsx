@@ -231,6 +231,7 @@ export const ProductDetail = ({
   settings,
   navigation
 }) => {
+  const [selectedOptions, setSelectedOptions] = useState({});
   const { hideWishList } = route.params
   const [product, setProduct] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -242,6 +243,10 @@ export const ProductDetail = ({
   )
   const dispatch = useDispatch()
   const productScreenBlocks = useSelector(state => state.products.blocks)
+
+  const handleOptionsChange = (options) => {
+    setSelectedOptions(options);
+  };
 
   const fetchDataAndSetHeaderOptions = useCallback(
     async currentPid => {
@@ -439,7 +444,7 @@ export const ProductDetail = ({
 
   const renderVariationsAndOptions = () => {
     if (isEmpty(product.selectedOptions) && isEmpty(product.selectedVariants)) {
-      return null
+      return null;
     }
 
     return (
@@ -452,16 +457,18 @@ export const ProductDetail = ({
           selectedOptions={product.selectedVariants}
           changeOptionHandler={changeVariationHandler}
           navigation={navigation}
+          onOptionsChange={handleOptionsChange}
         />
         <ProductDetailOptions
           options={product.convertedOptions}
           selectedOptions={product.selectedOptions}
           changeOptionHandler={changeOptionHandler}
           navigation={navigation}
+          onOptionsChange={handleOptionsChange}
         />
       </Section>
-    )
-  }
+    );
+  };
 
   const renderDiscountLabel = () => {
     if (!product.list_discount_prc && !product.discount_prc) {
@@ -802,75 +809,79 @@ export const ProductDetail = ({
   }
 
   const handleAddToCart = (showNotification = true, productOffer) => {
-    const productOptions = {}
-
+    const productOptions = {};
+  
     if (!auth.logged) {
-      navigation.navigate('Login')
+      navigation.navigate('Login');
     }
-
-    const currentProduct = productOffer || product
-
+  
+    const currentProduct = productOffer || product;
+  
     // Convert product options to the option_id: variant_id array.
     Object.keys(product.selectedOptions).forEach(k => {
-      productOptions[k] = product.selectedOptions[k]
-
-      if (product.selectedOptions[k].variant_id) {
-        productOptions[k] = product.selectedOptions[k].variant_id
+      const selectedOption = product.selectedOptions[k];
+  
+      if (selectedOption) {
+        productOptions[k] = selectedOption;
+  
+        if (selectedOption.variant_id) {
+          productOptions[k] = selectedOption.variant_id;
+        }
+  
+        const currentOption = product.convertedOptions.find(
+          option => option.option_id === k
+        );
+  
+        // If an option is a text, required and doesn't have value, changes value to 'required'
+        if (
+          (currentOption.option_type === OPTION_TYPE_TEXT ||
+            currentOption.option_type === OPTION_TYPE_TEXT_AREA) &&
+          currentOption.required === 'Y' &&
+          productOptions[k] === ''
+        ) {
+          productOptions[k] = OPTION_IS_REQUIRED;
+        }
       }
-
-      const currentOption = product.convertedOptions.find(
-        option => option.option_id === k
-      )
-
-      // If an option is a text, required and doesn't have value, changes value to 'required'
-      if (
-        (currentOption.option_type === OPTION_TYPE_TEXT ||
-          currentOption.option_type === OPTION_TYPE_TEXT_AREA) &&
-        currentOption.required === 'Y' &&
-        productOptions[k] === ''
-      ) {
-        productOptions[k] = OPTION_IS_REQUIRED
-      }
-    })
-
+    });
+  
     const products = {
       [currentProduct.product_id]: {
         product_id: currentProduct.product_id,
         amount,
         product_options: productOptions
       }
-    }
-
-    let requiredOptionWithoutValue = []
-
+    };
+  
+    let requiredOptionWithoutValue = [];
+  
     // Determines is there a product with required option but without value
     Object.keys(products).forEach(product => {
       requiredOptionWithoutValue = Object.keys(
         products[product].product_options
       ).filter(key => {
         if (products[product].product_options[key] === OPTION_IS_REQUIRED) {
-          return key
+          return key;
         }
-      })
-    })
-
+      });
+    });
+  
     if (requiredOptionWithoutValue.length) {
-      productsActions.showRequiredOptionNotification()
-      const newProduct = { ...product }
+      productsActions.showRequiredOptionNotification();
+      const newProduct = { ...product };
       newProduct.convertedOptions = newProduct.convertedOptions.map(option => {
         if (requiredOptionWithoutValue.includes(option.option_id)) {
-          return { ...option, requiredOptionWarning: true }
+          return { ...option, requiredOptionWarning: true };
         }
-
-        return { ...option }
-      })
-
-      setProduct(newProduct)
-      return
+  
+        return { ...option };
+      });
+  
+      setProduct(newProduct);
+      return;
     }
-
-    return cartActions.add({ products }, showNotification, cart.coupons)
-  }
+  
+    return cartActions.add({ products }, showNotification, cart.coupons);
+  };
 
   const renderAddToCart = () => {
     const canPayWithApplePay = Platform.OS === 'ios' && config.applePay

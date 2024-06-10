@@ -1,6 +1,6 @@
-import React from 'react'
+import React,  { useState } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet, Button } from 'react-native'
 import theme from '../config/theme'
 
 // Utils
@@ -87,7 +87,34 @@ const styles = StyleSheet.create({
   }
 })
 
-const ProductListView = ({ product, settings, auth, onPress }) => {
+const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
+  const [selectedOptions, setSelectedOptions] = useState({});
+
+  const handleAddToCart = () => {
+    const { item } = product;
+    const requiredOptions = item.options.filter(option => option.required);
+
+    const hasSelectedAllRequiredOptions = requiredOptions.every(option => {
+      const selectedOption = selectedOptions[option.selectDefaultId];
+      return selectedOption && selectedOption.variant_id !== undefined;
+    });
+
+    if (hasSelectedAllRequiredOptions) {
+      const cartItem = {
+        productId: item.product_id,
+        quantity: 1,
+        options: selectedOptions
+      };
+      addToCart(cartItem);
+    } else {
+      Alert.alert(
+        'Выберите обязательные параметры',
+        'Пожалуйста, выберите все обязательные параметры перед добавлением товара в корзину.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const renderDiscount = () => {
     const { item } = product
 
@@ -187,6 +214,7 @@ const ProductListView = ({ product, settings, auth, onPress }) => {
         </Text>
         {renderRating()}
         {renderPrice()}
+        {/* <Button title="В корзину" onPress={handleAddToCart} /> */}
       </View>
     </TouchableOpacity>
   )
