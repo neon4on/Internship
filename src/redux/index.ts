@@ -19,6 +19,7 @@ import vendors from './reducers/vendors'
 import notifications from './reducers/notifications'
 import reviewsReducer from './reducers/reviewsReducer';
 
+import staffReducer from './reducers/staffReducer';
 import vendorManageProducts from './reducers/VendorManage/products'
 import vendorManageCategories from './reducers/VendorManage/categories'
 import vendorManageOrders from './reducers/VendorManage/orders'
@@ -45,6 +46,7 @@ export const rootReducer = combineReducers({
   vendorManageOrders,
   notifications,
   reviews: reviewsReducer,
+  staff: staffReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

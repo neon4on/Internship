@@ -1,28 +1,51 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-// import StaffList from '../components/StaffList';
-// import StaffDetail from '../components/StaffDetail';
-import { Button, StyleSheet, Text, View, FlatList } from 'react-native';
-const Stack = createStackNavigator();
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Button, StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { fetchStaff } from '../redux/actions/staffActions';
 
-const StaffScreen = () => {
+const StaffScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { list: staffList, loading, error } = useSelector((state) => state.staff);
+
+  useEffect(() => {
+    dispatch(fetchStaff());
+  }, [dispatch]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text> { 'Hi :)' } </Text>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('StaffDetail', { staffId: item.id })}>
+      <View style={styles.staffItem}>
+        <Text style={styles.staffName}>{item.name}</Text>
+        <Text style={styles.staffPosition}>{item.position}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <>
     <View style={styles.container}>
-      <Text>Hi</Text>
-      <Button title="Добавить Staff" onPress={() => navigation.navigate('Staff')} />
-      {/* <FlatList
-        data={reviews}
-        keyExtractor={(item) => item.post_id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.reviewItem}>
-            <Text style={styles.reviewAuthor}>{item.name}</Text>
-            <Text style={styles.reviewText}>{item.message}</Text>
-          </View>
-        )}
-      /> */}
+      <Button title="Добавить Staff" onPress={() => navigation.navigate('AddEditStaff')} />
+      <FlatList
+        data={staffList}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+      />
     </View>
-    </>
   );
 };
 
@@ -32,7 +55,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#f5f5f5',
   },
-  reviewItem: {
+  staffItem: {
     backgroundColor: 'white',
     padding: 16,
     borderRadius: 8,
@@ -43,12 +66,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  reviewAuthor: {
+  staffName: {
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 8,
   },
-  reviewText: {
+  staffPosition: {
     fontSize: 14,
     color: '#333',
   },
