@@ -1,7 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { fetchStaff } from '../redux/actions/staffActions';
+
+const StaffItem = React.memo(({ item, onPress }) => {
+  return (
+    <TouchableOpacity onPress={() => onPress(item.id)}>
+      <View style={styles.staffItem}>
+        <Text style={styles.staffName}>{item.name}</Text>
+        <Text style={styles.staffJobTitle}>{item.job_title}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 const StaffScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -11,9 +22,9 @@ const StaffScreen = ({ navigation }) => {
     dispatch(fetchStaff());
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log('Staff list:', staffList);
-  }, [staffList]);
+  const handlePress = useCallback((id) => {
+    navigation.navigate('StaffDetailScreen', { staffId: id });
+  }, [navigation]);
 
   if (loading) {
     return (
@@ -31,29 +42,20 @@ const StaffScreen = ({ navigation }) => {
     );
   }
 
-  const renderItem = ({ item }) => {
-    if (!item || !item.id) {
-      console.warn('Invalid item:', item);
-      return null;
-    }
-
-    return (
-      <TouchableOpacity onPress={() => navigation.navigate('StaffDetailScreen', { staffId: item.id })}>
-        <View style={styles.staffItem}>
-          <Text style={styles.staffName}>{item.name}</Text>
-          <Text style={styles.staffPosition}>{item.job_title}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  const renderItem = ({ item }) => (
+    <StaffItem item={item} onPress={handlePress} />
+  );
 
   return (
     <View style={styles.container}>
       <Button title="Добавить Staff" onPress={() => navigation.navigate('StaffAddEditScreen')} />
       <FlatList
         data={staffList}
-        keyExtractor={(item) => item?.id?.toString() || ''}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
       />
     </View>
   );
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
   },
-  staffPosition: {
+  staffJobTitle: {
     fontSize: 14,
     color: '#333',
   },
