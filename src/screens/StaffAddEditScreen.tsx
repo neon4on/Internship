@@ -21,7 +21,6 @@ const AddEditStaffScreen = ({ route, navigation }) => {
     zipcode: '',
     address: '',
     image_path: '',
-    // Добавьте любые другие поля, которые нужны
   });
 
   useEffect(() => {
@@ -46,7 +45,6 @@ const AddEditStaffScreen = ({ route, navigation }) => {
         zipcode: staffDetail.zipcode,
         address: staffDetail.address,
         image_path: staffDetail.image_path,
-        // Добавьте любые другие поля, которые нужны
       });
     }
   }, [staffDetail, staffId]);
@@ -68,96 +66,99 @@ const AddEditStaffScreen = ({ route, navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.label}>Name:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.name}
-        onChangeText={(text) => handleInputChange('name', text)}
-      />
-      <Text style={styles.label}>Job Title:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.job_title}
-        onChangeText={(text) => handleInputChange('job_title', text)}
-      />
-      <Text style={styles.label}>Position:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.position}
-        onChangeText={(text) => handleInputChange('position', text)}
-      />
-      <Text style={styles.label}>Email:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.email}
-        onChangeText={(text) => handleInputChange('email', text)}
-      />
-      <Text style={styles.label}>Status:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.status}
-        onChangeText={(text) => handleInputChange('status', text)}
-      />
-      <Text style={styles.label}>Gender:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.gender}
-        onChangeText={(text) => handleInputChange('gender', text)}
-      />
-      <Text style={styles.label}>Short Description:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.short_description}
-        onChangeText={(text) => handleInputChange('short_description', text)}
-      />
-      <Text style={styles.label}>Country:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.country}
-        onChangeText={(text) => handleInputChange('country', text)}
-      />
-      <Text style={styles.label}>State:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.state}
-        onChangeText={(text) => handleInputChange('state', text)}
-      />
-      <Text style={styles.label}>City:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.city}
-        onChangeText={(text) => handleInputChange('city', text)}
-      />
-      <Text style={styles.label}>Zip Code:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.zipcode}
-        onChangeText={(text) => handleInputChange('zipcode', text)}
-      />
-      <Text style={styles.label}>Address:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.address}
-        onChangeText={(text) => handleInputChange('address', text)}
-      />
-      <Text style={styles.label}>Image Path:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.image_path}
-        onChangeText={(text) => handleInputChange('image_path', text)}
-      />
-
-      <Button title="Save" onPress={handleSubmit} />
-    </ScrollView>
+    <View style={styles.container}>
+      <Button title="Save" onPress={handleSubmit} style={styles.saveButton} />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.label}>Name:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.name}
+          onChangeText={(text) => handleInputChange('name', text)}
+        />
+        <Text style={styles.label}>Job Title:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.job_title}
+          onChangeText={(text) => handleInputChange('job_title', text)}
+        />
+        <Text style={styles.label}>Position:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.position}
+          onChangeText={(text) => handleInputChange('position', text)}
+        />
+        <Text style={styles.label}>Email:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.email}
+          onChangeText={(text) => handleInputChange('email', text)}
+        />
+        <Text style={styles.label}>Status:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.status}
+          onChangeText={(text) => handleInputChange('status', text)}
+        />
+        <Text style={styles.label}>Gender:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.gender}
+          onChangeText={(text) => handleInputChange('gender', text)}
+        />
+        <Text style={styles.label}>Short Description:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.short_description}
+          onChangeText={(text) => handleInputChange('short_description', text)}
+        />
+        <Text style={styles.label}>Country:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.country}
+          onChangeText={(text) => handleInputChange('country', text)}
+        />
+        <Text style={styles.label}>State:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.state}
+          onChangeText={(text) => handleInputChange('state', text)}
+        />
+        <Text style={styles.label}>City:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.city}
+          onChangeText={(text) => handleInputChange('city', text)}
+        />
+        <Text style={styles.label}>Zip Code:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.zipcode}
+          onChangeText={(text) => handleInputChange('zipcode', text)}
+        />
+        <Text style={styles.label}>Address:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.address}
+          onChangeText={(text) => handleInputChange('address', text)}
+        />
+        <Text style={styles.label}>Image Path:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.image_path}
+          onChangeText={(text) => handleInputChange('image_path', text)}
+        />
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContainer: {
+    padding: 16,
   },
   label: {
     fontWeight: 'bold',
@@ -168,6 +169,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    marginBottom: 16,
+  },
+  saveButton: {
     marginBottom: 16,
   },
 });
