@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, StyleSheet, Text, TextInput, View, ScrollView } from 'react-native';
-import { fetchStaffDetail, createStaff, updateStaff } from '../redux/actions/staffActions';
+import { fetchStaffDetail, createStaff, saveStaff } from '../redux/actions/staffActions';
 
 const AddEditStaffScreen = ({ route, navigation }) => {
   const { staffId } = route.params || {};
@@ -9,10 +9,19 @@ const AddEditStaffScreen = ({ route, navigation }) => {
   const { detail: staffDetail, loading, error } = useSelector((state) => state.staff);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    job_title: '',
     position: '',
+    email: '',
+    status: '',
+    gender: '',
+    short_description: '',
     country: '',
-    // Добавь остальные поля по аналогии
+    state: '',
+    city: '',
+    zipcode: '',
+    address: '',
+    image_path: '',
+    // Добавьте любые другие поля, которые нужны
   });
 
   useEffect(() => {
@@ -25,10 +34,19 @@ const AddEditStaffScreen = ({ route, navigation }) => {
     if (staffDetail && staffId) {
       setFormData({
         name: staffDetail.name,
-        email: staffDetail.email,
+        job_title: staffDetail.job_title,
         position: staffDetail.position,
+        email: staffDetail.email,
+        status: staffDetail.status,
+        gender: staffDetail.gender,
+        short_description: staffDetail.short_description,
         country: staffDetail.country,
-        // Добавь остальные поля по аналогии
+        state: staffDetail.state,
+        city: staffDetail.city,
+        zipcode: staffDetail.zipcode,
+        address: staffDetail.address,
+        image_path: staffDetail.image_path,
+        // Добавьте любые другие поля, которые нужны
       });
     }
   }, [staffDetail, staffId]);
@@ -42,7 +60,7 @@ const AddEditStaffScreen = ({ route, navigation }) => {
 
   const handleSubmit = () => {
     if (staffId) {
-      dispatch(updateStaff(staffId, formData));
+      dispatch(saveStaff({ ...formData, id: staffId }));
     } else {
       dispatch(createStaff(formData));
     }
@@ -57,28 +75,79 @@ const AddEditStaffScreen = ({ route, navigation }) => {
         value={formData.name}
         onChangeText={(text) => handleInputChange('name', text)}
       />
-
-      <Text style={styles.label}>Email:</Text>
+      <Text style={styles.label}>Job Title:</Text>
       <TextInput
         style={styles.input}
-        value={formData.email}
-        onChangeText={(text) => handleInputChange('email', text)}
+        value={formData.job_title}
+        onChangeText={(text) => handleInputChange('job_title', text)}
       />
-
       <Text style={styles.label}>Position:</Text>
       <TextInput
         style={styles.input}
         value={formData.position}
         onChangeText={(text) => handleInputChange('position', text)}
       />
-
+      <Text style={styles.label}>Email:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.email}
+        onChangeText={(text) => handleInputChange('email', text)}
+      />
+      <Text style={styles.label}>Status:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.status}
+        onChangeText={(text) => handleInputChange('status', text)}
+      />
+      <Text style={styles.label}>Gender:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.gender}
+        onChangeText={(text) => handleInputChange('gender', text)}
+      />
+      <Text style={styles.label}>Short Description:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.short_description}
+        onChangeText={(text) => handleInputChange('short_description', text)}
+      />
       <Text style={styles.label}>Country:</Text>
       <TextInput
         style={styles.input}
         value={formData.country}
         onChangeText={(text) => handleInputChange('country', text)}
       />
-      
+      <Text style={styles.label}>State:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.state}
+        onChangeText={(text) => handleInputChange('state', text)}
+      />
+      <Text style={styles.label}>City:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.city}
+        onChangeText={(text) => handleInputChange('city', text)}
+      />
+      <Text style={styles.label}>Zip Code:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.zipcode}
+        onChangeText={(text) => handleInputChange('zipcode', text)}
+      />
+      <Text style={styles.label}>Address:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.address}
+        onChangeText={(text) => handleInputChange('address', text)}
+      />
+      <Text style={styles.label}>Image Path:</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.image_path}
+        onChangeText={(text) => handleInputChange('image_path', text)}
+      />
+
       <Button title="Save" onPress={handleSubmit} />
     </ScrollView>
   );

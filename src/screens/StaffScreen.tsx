@@ -38,10 +38,10 @@ const StaffScreen = ({ navigation }) => {
     }
 
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('StaffDetail', { staffId: item.id })}>
+      <TouchableOpacity onPress={() => navigation.navigate('StaffDetailScreen', { staffId: item.id })}>
         <View style={styles.staffItem}>
           <Text style={styles.staffName}>{item.name}</Text>
-          <Text style={styles.staffPosition}>{item.position}</Text>
+          <Text style={styles.staffPosition}>{item.job_title}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -49,7 +49,7 @@ const StaffScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Button title="Добавить Staff" onPress={() => navigation.navigate('StaffAddEdit')} />
+      <Button title="Добавить Staff" onPress={() => navigation.navigate('StaffAddEditScreen')} />
       <FlatList
         data={staffList}
         keyExtractor={(item) => item?.id?.toString() || ''}

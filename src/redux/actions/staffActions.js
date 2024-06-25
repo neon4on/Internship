@@ -34,22 +34,27 @@ export const fetchStaff = () => {
       console.log('Full response:', response);
       console.log('Response data:', response.data);
 
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          console.log('Data is an array with length:', response.data.length);
-          if (response.data.every(item => typeof item === 'object' && item.id)) {
-            console.log('All items in the array have an id property');
-            dispatch(fetchStaffSuccess(response.data));
-          } else {
-            console.error('Not all items in the array have an id property');
-            throw new Error('Invalid response structure');
-          }
-        } else {
-          console.error('Response data is not an array:', typeof response.data);
-          throw new Error('Invalid response structure');
-        }
+      if (response.data && Array.isArray(response.data) && response.data.every(item => item.staff_id)) {
+        const formattedData = response.data.map(item => ({
+          id: item.staff_id,
+          name: item.name,
+          job_title: item.job_title,
+          position: item.position,
+          email: item.email,
+          status: item.status,
+          gender: item.gender,
+          short_description: item.short_description,
+          staff_id: item.staff_id,
+          lang_code: item.lang_code,
+          country: item.country,
+          state: item.state,
+          city: item.city,
+          zipcode: item.zipcode,
+          address: item.address,
+          image_path: item.image_path,
+        }));
+        dispatch(fetchStaffSuccess(formattedData));
       } else {
-        console.error('Response data is undefined or null');
         throw new Error('Invalid response structure');
       }
     } catch (error) {
@@ -58,10 +63,6 @@ export const fetchStaff = () => {
     }
   };
 };
-
-
-
-
 
 export const fetchStaffDetailRequest = () => ({
   type: FETCH_STAFF_DETAIL_REQUEST,
@@ -83,7 +84,7 @@ export const fetchStaffDetail = (staffId) => {
     try {
       const response = await AxiosInstance.get(`/sra_staff/${staffId}`);
       console.log('Staff detail response:', response.data);
-      if (response.data && response.data.id) {
+      if (response.data && response.data.staff_id) {
         dispatch(fetchStaffDetailSuccess(response.data));
       } else {
         throw new Error('Invalid response structure');
@@ -120,13 +121,32 @@ export const saveStaff = (staff) => {
         data: staff,
       });
       console.log('Save staff response:', response.data);
-      if (response.data && response.data.id) {
+      if (response.data && response.data.staff_id) {
         dispatch(saveStaffSuccess(response.data));
       } else {
         throw new Error('Invalid response structure');
       }
     } catch (error) {
       console.error('Save staff error:', error);
+      dispatch(saveStaffFailure(error.message));
+    }
+  };
+};
+
+// Экспорт функции createStaff
+export const createStaff = (staff) => {
+  return async (dispatch) => {
+    dispatch(saveStaffRequest());
+    try {
+      const response = await AxiosInstance.post('/sra_staff', staff);
+      console.log('Create staff response:', response.data);
+      if (response.data && response.data.staff_id) {
+        dispatch(saveStaffSuccess(response.data));
+      } else {
+        throw new Error('Invalid response structure');
+      }
+    } catch (error) {
+      console.error('Create staff error:', error);
       dispatch(saveStaffFailure(error.message));
     }
   };
