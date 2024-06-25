@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { fetchStaff } from '../actions/staffActions';
 
 const staffSlice = createSlice({
-  name: 'staff',
+  name: 'sra_staff',
   initialState: {
     list: [],
     loading: false,

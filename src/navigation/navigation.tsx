@@ -57,6 +57,8 @@ import { StripePaymentProvider } from '../screens/StripePaymentProvider'
 
 import ReviewsScreen from '../screens/ReviewsScreen'
 import StaffScreen from '../screens/StaffScreen'
+import StaffDetailScreen from '../screens/StaffDetailScreen'
+import StaffAddEditScreen from '../screens/StaffAddEditScreen'
 import SubmitReviewScreen from '../screens/SubmitReviewScreen'
 import ApplicationInformation from '../screens/ApplicationInformation'
 import { isDarkBackground } from '../utils'
@@ -269,9 +271,19 @@ const ProfileSection = () => {
         options={{ title: i18n.t('Descriptions of vendor') }}
       />
       <Stack.Screen
-        name={'StaffScreen'}
+        name={i18n.t('StaffScreen')}
         component={StaffScreen}
         options={{ title: i18n.t('Staff Screen') }}
+      />
+      <Stack.Screen
+        name={i18n.t('StaffDetailScreen')}
+        component={StaffDetailScreen}
+        options={{ title: i18n.t('Staff detail screen') }}
+      />
+      <Stack.Screen
+        name={i18n.t('StaffAddEditScreen')}
+        component={StaffAddEditScreen}
+        options={{ title: i18n.t('Staff add/edit Screen') }}
       />
       <Stack.Screen
         name={'SubmitReviewScreen'}

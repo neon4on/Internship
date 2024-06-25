@@ -30,17 +30,38 @@ export const fetchStaff = () => {
   return async (dispatch) => {
     dispatch(fetchStaffRequest());
     try {
-      const response = await AxiosInstance.get('/staff');
+      const response = await AxiosInstance.get('/sra_staff');
+      console.log('Full response:', response);
+      console.log('Response data:', response.data);
+
       if (response.data) {
-        dispatch(fetchStaffSuccess(response.data));
+        if (Array.isArray(response.data)) {
+          console.log('Data is an array with length:', response.data.length);
+          if (response.data.every(item => typeof item === 'object' && item.id)) {
+            console.log('All items in the array have an id property');
+            dispatch(fetchStaffSuccess(response.data));
+          } else {
+            console.error('Not all items in the array have an id property');
+            throw new Error('Invalid response structure');
+          }
+        } else {
+          console.error('Response data is not an array:', typeof response.data);
+          throw new Error('Invalid response structure');
+        }
       } else {
+        console.error('Response data is undefined or null');
         throw new Error('Invalid response structure');
       }
     } catch (error) {
+      console.error('Fetch staff error:', error);
       dispatch(fetchStaffFailure(error.message));
     }
   };
 };
+
+
+
+
 
 export const fetchStaffDetailRequest = () => ({
   type: FETCH_STAFF_DETAIL_REQUEST,
@@ -60,13 +81,15 @@ export const fetchStaffDetail = (staffId) => {
   return async (dispatch) => {
     dispatch(fetchStaffDetailRequest());
     try {
-      const response = await AxiosInstance.get(`/staff/${staffId}`);
-      if (response.data) {
+      const response = await AxiosInstance.get(`/sra_staff/${staffId}`);
+      console.log('Staff detail response:', response.data);
+      if (response.data && response.data.id) {
         dispatch(fetchStaffDetailSuccess(response.data));
       } else {
         throw new Error('Invalid response structure');
       }
     } catch (error) {
+      console.error('Fetch staff detail error:', error);
       dispatch(fetchStaffDetailFailure(error.message));
     }
   };
@@ -93,15 +116,17 @@ export const saveStaff = (staff) => {
       const method = staff.id ? 'PUT' : 'POST';
       const response = await AxiosInstance({
         method,
-        url: `/staff/${staff.id || ''}`,
+        url: `/sra_staff/${staff.id || ''}`,
         data: staff,
       });
-      if (response.data) {
+      console.log('Save staff response:', response.data);
+      if (response.data && response.data.id) {
         dispatch(saveStaffSuccess(response.data));
       } else {
         throw new Error('Invalid response structure');
       }
     } catch (error) {
+      console.error('Save staff error:', error);
       dispatch(saveStaffFailure(error.message));
     }
   };

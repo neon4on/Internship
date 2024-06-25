@@ -11,6 +11,10 @@ const StaffScreen = ({ navigation }) => {
     dispatch(fetchStaff());
   }, [dispatch]);
 
+  useEffect(() => {
+    console.log('Staff list:', staffList);
+  }, [staffList]);
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -22,27 +26,33 @@ const StaffScreen = ({ navigation }) => {
   if (error) {
     return (
       <View style={styles.container}>
-        <Text> { 'Hi :)' } </Text>
         <Text>Error: {error}</Text>
       </View>
     );
   }
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('StaffDetail', { staffId: item.id })}>
-      <View style={styles.staffItem}>
-        <Text style={styles.staffName}>{item.name}</Text>
-        <Text style={styles.staffPosition}>{item.position}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    if (!item || !item.id) {
+      console.warn('Invalid item:', item);
+      return null;
+    }
+
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('StaffDetail', { staffId: item.id })}>
+        <View style={styles.staffItem}>
+          <Text style={styles.staffName}>{item.name}</Text>
+          <Text style={styles.staffPosition}>{item.position}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Button title="Добавить Staff" onPress={() => navigation.navigate('AddEditStaff')} />
+      <Button title="Добавить Staff" onPress={() => navigation.navigate('StaffAddEdit')} />
       <FlatList
         data={staffList}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item?.id?.toString() || ''}
         renderItem={renderItem}
       />
     </View>
