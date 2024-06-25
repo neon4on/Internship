@@ -44,7 +44,6 @@ export const fetchStaff = () => {
           status: item.status,
           gender: item.gender,
           short_description: item.short_description,
-          staff_id: item.staff_id,
           lang_code: item.lang_code,
           country: item.country,
           state: item.state,

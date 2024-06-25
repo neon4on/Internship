@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { fetchStaff } from '../redux/actions/staffActions';
+import i from '../utils/i18n_local'
 
 const StaffItem = React.memo(({ item, onPress }) => {
   return (
@@ -48,7 +49,7 @@ const StaffScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Button title="Добавить Staff" onPress={() => navigation.navigate('StaffAddEditScreen')} />
+      <Button title={i.t('Add Staff')} onPress={() => navigation.navigate('StaffAddEditScreen')} />
       <FlatList
         data={staffList}
         keyExtractor={(item) => item.id.toString()}

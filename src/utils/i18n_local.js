@@ -16,7 +16,7 @@ export const deviceLanguage = platformLanguage.split('_')[0]
 
 const currentLanguage =
   typeof settingsLanguage === 'undefined' ? deviceLanguage : settingsLanguage
-
+console.log(currentLanguage)
 const langs = ['ar', 'ru', 'en', 'fr', 'it', 'es']
 let jsonData
 

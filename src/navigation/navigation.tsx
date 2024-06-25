@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import i18n from '../utils/i18n'
+import i18n from '../utils/i18n_local'
 import config from '../config'
 import theme from '../config/theme'
 import { HomeScreen } from '../screens/HomeScreen'
@@ -271,17 +271,17 @@ const ProfileSection = () => {
         options={{ title: i18n.t('Descriptions of vendor') }}
       />
       <Stack.Screen
-        name={i18n.t('StaffScreen')}
+        name={'StaffScreen'}
         component={StaffScreen}
         options={{ title: i18n.t('Staff Screen') }}
       />
       <Stack.Screen
-        name={i18n.t('StaffDetailScreen')}
+        name={'StaffDetailScreen'}
         component={StaffDetailScreen}
         options={{ title: i18n.t('Staff detail screen') }}
       />
       <Stack.Screen
-        name={i18n.t('StaffAddEditScreen')}
+        name={'StaffAddEditScreen'}
         component={StaffAddEditScreen}
         options={{ title: i18n.t('Staff add/edit Screen') }}
       />

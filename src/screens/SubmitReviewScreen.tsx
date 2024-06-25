@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'reac
 import AxiosInstance from '../services/api';
 import { useDispatch } from 'react-redux';
 import { fetchReviews } from '../redux/actions/reviewsActions';
+import i from '../utils/i18n_local'
 
 const SubmitReviewScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -43,22 +44,22 @@ const SubmitReviewScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Submit Review</Text>
+      <Text style={styles.title}>{i.t('Review')}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Your Name"
+        placeholder={i.t('Your Name')}
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Your Review"
+        placeholder={i.t('Your Review')}
         value={message}
         onChangeText={setMessage}
         multiline
       />
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
+        <Text style={styles.submitButtonText}>{i.t('Submit')}</Text>
       </TouchableOpacity>
     </View>
   );

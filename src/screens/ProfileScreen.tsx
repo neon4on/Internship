@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import i18n from '../utils/i18n'
+import i from '../utils/i18n_local'
 import theme from '../config/theme'
 import { registerDrawerDeepLinks } from '../services/deepLinks'
 import { USER_TYPE_VENDOR } from '../constants/index'
@@ -312,7 +313,7 @@ export class ProfileEdit extends Component {
           <TouchableOpacity
             onPress={() => navigation.navigate('ApplicationInformation')}
             style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
-            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Information about Application')}</Text>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i.t('Information about Application')}</Text>
             <View style={styles.IconNameWrapper}>
               <Icon name={this.iconType} style={styles.arrowIcon} />
             </View>
@@ -337,7 +338,7 @@ export class ProfileEdit extends Component {
                 themeStyles.sectionText
               ]}
             >
-              {i18n.t('Set night theme')}
+              {i.t('Set night theme')}
             </Text>
             <View style={styles.IconNameWrapper}>
               <Switch
@@ -354,7 +355,7 @@ export class ProfileEdit extends Component {
           <TouchableOpacity
             onPress={() => navigation.navigate('ReviewsScreen')}
             style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
-            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Descriptions of vendor')}</Text>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i.t('Descriptions of vendor')}</Text>
             <View style={styles.IconNameWrapper}>
               <Icon name={this.iconType} style={styles.arrowIcon} />
             </View>
@@ -363,7 +364,7 @@ export class ProfileEdit extends Component {
           <TouchableOpacity
             onPress={() => navigation.navigate('StaffScreen')}
             style={[styles.signInBtnContainer, themeStyles.sectionContainer]}>
-            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i18n.t('Staff')}</Text>
+            <Text style={[styles.signInBtnText, themeStyles.sectionText]}>{i.t("Staff")}</Text>
             <View style={styles.IconNameWrapper}>
               <Icon name={this.iconType} style={styles.arrowIcon} />
             </View>

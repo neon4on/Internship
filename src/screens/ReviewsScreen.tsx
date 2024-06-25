@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, StyleSheet, Text, View, FlatList } from 'react-native';
 import { fetchReviews } from '../redux/actions/reviewsActions';
-
+import i from '../utils/i18n_local'
 const ReviewsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { reviews, loading, error } = useSelector((state) => state.reviews);
@@ -39,7 +39,7 @@ const ReviewsScreen = ({ navigation }) => {
           </View>
         )}
       />
-      <Button title="Submit Review" onPress={() => navigation.navigate('SubmitReviewScreen')} />
+      <Button title={i.t("Send Review")} onPress={() => navigation.navigate('SubmitReviewScreen')} />
     </View>
   );
 };

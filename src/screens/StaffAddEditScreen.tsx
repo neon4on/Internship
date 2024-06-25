@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, StyleSheet, Text, TextInput, View, ScrollView } from 'react-native';
 import { fetchStaffDetail, createStaff, saveStaff } from '../redux/actions/staffActions';
+import i from '../utils/i18n_local'
 
 const AddEditStaffScreen = ({ route, navigation }) => {
   const { staffId } = route.params || {};
@@ -67,86 +68,87 @@ const AddEditStaffScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Button title="Save" onPress={handleSubmit} style={styles.saveButton} />
+      <Button title={i.t('Save')} onPress={handleSubmit} style={styles.saveButton} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.label}>Name:</Text>
+        <Text style={styles.label}>{i.t('Name:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.name}
           onChangeText={(text) => handleInputChange('name', text)}
         />
-        <Text style={styles.label}>Job Title:</Text>
+        <Text style={styles.label}>{i.t('Job Title:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.job_title}
           onChangeText={(text) => handleInputChange('job_title', text)}
         />
-        <Text style={styles.label}>Position:</Text>
+        <Text style={styles.label}>{i.t('Position:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.position}
           onChangeText={(text) => handleInputChange('position', text)}
         />
-        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.label}>{i.t('Email:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.email}
           onChangeText={(text) => handleInputChange('email', text)}
         />
-        <Text style={styles.label}>Status:</Text>
+        <Text style={styles.label}>{i.t('Status:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.status}
           onChangeText={(text) => handleInputChange('status', text)}
         />
-        <Text style={styles.label}>Gender:</Text>
+        <Text style={styles.label}>{i.t('Gender:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.gender}
           onChangeText={(text) => handleInputChange('gender', text)}
         />
-        <Text style={styles.label}>Short Description:</Text>
+        <Text style={styles.label}>{i.t('Short description:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.short_description}
           onChangeText={(text) => handleInputChange('short_description', text)}
         />
-        <Text style={styles.label}>Country:</Text>
+        <Text style={styles.label}>{i.t('Country:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.country}
           onChangeText={(text) => handleInputChange('country', text)}
         />
-        <Text style={styles.label}>State:</Text>
+
+        <Text style={styles.label}>{i.t('State:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.state}
           onChangeText={(text) => handleInputChange('state', text)}
         />
-        <Text style={styles.label}>City:</Text>
+        <Text style={styles.label}>{i.t('City:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.city}
           onChangeText={(text) => handleInputChange('city', text)}
         />
-        <Text style={styles.label}>Zip Code:</Text>
+        <Text style={styles.label}>{i.t('Zipcode:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.zipcode}
           onChangeText={(text) => handleInputChange('zipcode', text)}
         />
-        <Text style={styles.label}>Address:</Text>
+        <Text style={styles.label}>{i.t('Address:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.address}
           onChangeText={(text) => handleInputChange('address', text)}
         />
-        <Text style={styles.label}>Image Path:</Text>
+        {/* <Text style={styles.label}>Image Path:</Text>
         <TextInput
           style={styles.input}
           value={formData.image_path}
           onChangeText={(text) => handleInputChange('image_path', text)}
-        />
+        /> */}
       </ScrollView>
     </View>
   );
