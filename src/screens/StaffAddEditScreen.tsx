@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, StyleSheet, Text, TextInput, View, ScrollView } from 'react-native';
+import { Button, StyleSheet, Text, TextInput, View, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { fetchStaffDetail, createStaff, saveStaff } from '../redux/actions/staffActions';
-import i from '../utils/i18n_local'
+import i from '../utils/i18n_local';
+import config from '../config';
 
-const AddEditStaffScreen = ({ route, navigation }) => {
+const StaffAddEditScreen = ({ route, navigation }) => {
   const { staffId } = route.params || {};
   const dispatch = useDispatch();
   const { detail: staffDetail, loading, error } = useSelector((state) => state.staff);
@@ -21,7 +23,7 @@ const AddEditStaffScreen = ({ route, navigation }) => {
     city: '',
     zipcode: '',
     address: '',
-    image_path: '',
+    image: null,
   });
 
   useEffect(() => {
@@ -33,43 +35,89 @@ const AddEditStaffScreen = ({ route, navigation }) => {
   useEffect(() => {
     if (staffDetail && staffId) {
       setFormData({
-        name: staffDetail.name,
-        job_title: staffDetail.job_title,
-        position: staffDetail.position,
-        email: staffDetail.email,
-        status: staffDetail.status,
-        gender: staffDetail.gender,
-        short_description: staffDetail.short_description,
-        country: staffDetail.country,
-        state: staffDetail.state,
-        city: staffDetail.city,
-        zipcode: staffDetail.zipcode,
-        address: staffDetail.address,
-        image_path: staffDetail.image_path,
+        name: staffDetail.name || '',
+        job_title: staffDetail.job_title || '',
+        position: staffDetail.position || '',
+        email: staffDetail.email || '',
+        status: staffDetail.status || '',
+        gender: staffDetail.gender || '',
+        short_description: staffDetail.short_description || '',
+        country: staffDetail.country || '',
+        state: staffDetail.state || '',
+        city: staffDetail.city || '',
+        zipcode: staffDetail.zipcode || '',
+        address: staffDetail.address || '',
+        image: staffDetail.main_pair?.icon?.image_path 
+          ? { uri: `${config.siteUrl}${staffDetail.main_pair.icon.image_path}` }
+          : null,
       });
     }
   }, [staffDetail, staffId]);
 
   const handleInputChange = (name, value) => {
-    setFormData({
-      ...formData,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: value,
+    }));
+  };
+
+  const pickImage = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.assets && response.assets.length > 0) {
+        setFormData(prevData => ({
+          ...prevData,
+          image: { 
+            uri: response.assets[0].uri,
+            type: response.assets[0].type,
+            name: response.assets[0].fileName,
+          },
+        }));
+      }
     });
   };
 
-  const handleSubmit = () => {
-    if (staffId) {
-      dispatch(saveStaff({ ...formData, id: staffId }));
-    } else {
-      dispatch(createStaff(formData));
+  const handleSubmit = async () => {
+    try {
+      if (staffId) {
+        await dispatch(saveStaff(formData, staffId));
+      } else {
+        await dispatch(createStaff(formData));
+      }
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        `Failed to save staff: ${error.message}`,
+        [{ text: 'OK' }]
+      );
     }
-    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <Button title={i.t('Save')} onPress={handleSubmit} style={styles.saveButton} />
+      <Button title={i.t('Save')} onPress={handleSubmit} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+          {formData.image ? (
+            <Image 
+              source={{ uri: formData.image.uri }}
+              style={styles.image}
+            />
+          ) : (
+            <Text style={styles.imagePlaceholder}>{i.t('Tap to select image')}</Text>
+          )}
+        </TouchableOpacity>
         <Text style={styles.label}>{i.t('Name:')}</Text>
         <TextInput
           style={styles.input}
@@ -118,7 +166,6 @@ const AddEditStaffScreen = ({ route, navigation }) => {
           value={formData.country}
           onChangeText={(text) => handleInputChange('country', text)}
         />
-
         <Text style={styles.label}>{i.t('State:')}</Text>
         <TextInput
           style={styles.input}
@@ -143,12 +190,6 @@ const AddEditStaffScreen = ({ route, navigation }) => {
           value={formData.address}
           onChangeText={(text) => handleInputChange('address', text)}
         />
-        {/* <Text style={styles.label}>Image Path:</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.image_path}
-          onChangeText={(text) => handleInputChange('image_path', text)}
-        /> */}
       </ScrollView>
     </View>
   );
@@ -162,6 +203,25 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
   },
+  imageContainer: {
+    width: 200,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    textAlign: 'center',
+  },
   label: {
     fontWeight: 'bold',
     fontSize: 16,
@@ -173,9 +233,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     marginBottom: 16,
   },
-  saveButton: {
-    marginBottom: 16,
-  },
 });
 
-export default AddEditStaffScreen;
+export default StaffAddEditScreen;

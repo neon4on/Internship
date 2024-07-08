@@ -23,9 +23,8 @@ const StaffDetailScreen = ({ route, navigation }) => {
       const imagePath = staffDetail.main_pair.icon.image_path;
       const fullImageUrl = `${config.siteUrl}${imagePath}`;
       setImageUrl(fullImageUrl);
-      console.log('Full Image URL:', fullImageUrl);
     } else {
-      console.log('Staff detail or image path is missing:', staffDetail);
+      setImageUrl(null);
     }
   }, [staffDetail]);
 

@@ -1,4 +1,3 @@
-// ApplicationInformation.js
 import React from 'react';
 import { StyleSheet, View, Text, Image, ScrollView } from 'react-native';
 import DeviceInfo from 'react-native-device-info';

@@ -1,4 +1,5 @@
 import AxiosInstance from '../../services/api';
+import { Platform } from 'react-native';
 
 export const FETCH_STAFF_REQUEST = 'FETCH_STAFF_REQUEST';
 export const FETCH_STAFF_SUCCESS = 'FETCH_STAFF_SUCCESS';
@@ -109,35 +110,84 @@ export const saveStaffFailure = (error) => ({
   payload: error,
 });
 
-export const saveStaff = (staff) => {
+export const saveStaff = (staffData, staffId) => {
   return async (dispatch) => {
+    console.log('Starting saveStaff action');
     dispatch(saveStaffRequest());
     try {
-      const method = staff.id ? 'PUT' : 'POST';
-      const response = await AxiosInstance({
-        method,
-        url: `/sra_staff/${staff.id || ''}`,
-        data: staff,
+      console.log('Creating FormData');
+      const formData = new FormData();
+      
+      console.log('Checking required fields');
+      const requiredFields = ['name', 'job_title', 'email'];
+      requiredFields.forEach(field => {
+        if (!staffData[field]) {
+          throw new Error(`Field '${field}' is required`);
+        }
       });
-      console.log('Save staff response:', response.data);
-      if (response.data && response.data.staff_id) {
-        dispatch(saveStaffSuccess(response.data));
+
+      console.log('Adding staffData to FormData');
+      Object.keys(staffData).forEach(key => {
+        if (key !== 'image') {
+          formData.append(`staff_data[${key}]`, staffData[key]);
+        }
+      });
+      
+      console.log('Adding staff_id to FormData');
+      formData.append('staff_id', staffId || 0);
+      
+      console.log('Checking for image');
+      if (staffData.image && staffData.image.uri) {
+        console.log('Adding image to FormData');
+        formData.append('staff_image', {
+          uri: staffData.image.uri,
+          type: staffData.image.type || 'image/jpeg',
+          name: staffData.image.name || 'staff_image.jpg',
+        });
+      }
+
+      console.log('Sending data:', formData);
+      
+      console.log('Making API request');
+      const response = await AxiosInstance.post('/sra_staff', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      console.log('Full server response:', response);
+      console.log('Save staff response data:', response.data);
+      console.log('Response status:', response.status);
+      
+      if (typeof response.data === 'string' && response.data.includes('Tygh\\Exceptions\\AException')) {
+        console.log('Server returned HTML error');
+        const errorMessage = response.data.match(/<p[^>]*>(.*?)<\/p>/)[1] || 'Unknown server error';
+        throw new Error(errorMessage);
+      } else if (response.data && (response.data.staff_id || typeof response.data === 'number')) {
+        console.log('Server returned valid staff_id');
+        const savedStaffId = response.data.staff_id || response.data;
+        dispatch(saveStaffSuccess({ ...staffData, staff_id: savedStaffId }));
       } else {
+        console.error('Invalid server response structure:', response.data);
         throw new Error('Invalid response structure');
       }
     } catch (error) {
       console.error('Save staff error:', error);
+      console.error('Error stack:', error.stack);
       dispatch(saveStaffFailure(error.message));
     }
   };
 };
 
-// Экспорт функции createStaff
-export const createStaff = (staff) => {
+export const createStaff = (staffData) => {
   return async (dispatch) => {
     dispatch(saveStaffRequest());
     try {
-      const response = await AxiosInstance.post('/sra_staff', staff);
+      const response = await AxiosInstance.post('/sra_staff', staffData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log('Create staff response:', response.data);
       if (response.data && response.data.staff_id) {
         dispatch(saveStaffSuccess(response.data));
