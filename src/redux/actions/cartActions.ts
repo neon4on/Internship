@@ -257,8 +257,13 @@ export function add(
 
   return (dispatch: Dispatch<CartActionTypes>) => {
     dispatch({ type: ADD_TO_CART_REQUEST })
+    
+    const formattedData = {
+      products: data
+    }
+    
     return Api.post('/sra_cart_content/', {
-      ...data,
+      ...formattedData,
       params: { coupon_codes: appliedCoupons }
     })
       .then(response => {
@@ -273,29 +278,40 @@ export function add(
           })(dispatch)
         }
 
-        notificationsActions.show({
-          type: 'success',
-          title: i18n.t('Success'),
-          text: i18n.t('The product was added to your cart.')
-        })(dispatch)
+        if (notify) {
+          notificationsActions.show({
+            type: 'success',
+            title: i18n.t('Success'),
+            text: i18n.t('The product was added to your cart.')
+          })(dispatch)
+        }
+
+        return response.data
       })
       .then(() => fetch(undefined, coupons)(dispatch))
       .catch(error => {
-        // Out of stock error
-        if (error.response.data.status === 409) {
-          notificationsActions.show({
-            type: 'warning',
-            title: i18n.t('Notice'),
-            text: i18n.t(
-              'Product has zero inventory and cannot be added to the cart.'
-            )
-          })(dispatch)
+        let errorMessage = i18n.t('Failed to add product to cart.')
+        
+        if (error.response) {
+          if (error.response.status === 409) {
+            errorMessage = i18n.t('Product has zero inventory and cannot be added to the cart.')
+          } else if (error.response.data && error.response.data.message) {
+            errorMessage = error.response.data.message
+          }
         }
+
         dispatch({
           type: ADD_TO_CART_FAIL,
-          error
+          error: errorMessage
         })
-        return error.response
+
+        notificationsActions.show({
+          type: 'error',
+          title: i18n.t('Error'),
+          text: errorMessage
+        })(dispatch)
+
+        throw error
       })
   }
 }

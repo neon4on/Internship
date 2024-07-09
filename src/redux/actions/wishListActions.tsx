@@ -8,7 +8,10 @@ import {
   WISH_LIST_REMOVE_REQUEST,
   WISH_LIST_REMOVE_SUCCESS,
   WISH_LIST_REMOVE_FAIL,
-  WISH_LIST_CLEAR
+  WISH_LIST_CLEAR,
+  WISH_LIST_UPDATE_QUANTITY_REQUEST,
+  WISH_LIST_UPDATE_QUANTITY_SUCCESS,
+  WISH_LIST_UPDATE_QUANTITY_FAIL
 } from '../../constants'
 
 import i18n from '../../utils/i18n'
@@ -93,6 +96,37 @@ export function remove(cartId) {
           type: WISH_LIST_REMOVE_FAIL,
           error
         })
+      })
+  }
+}
+
+export function updateQuantity(cartId, newQuantity) {
+  return dispatch => {
+    dispatch({
+      type: WISH_LIST_UPDATE_QUANTITY_REQUEST
+    })
+    return Api.put(`/sra_wish_list/${cartId}`, { amount: newQuantity })
+      .then(response => {
+        dispatch({
+          type: WISH_LIST_UPDATE_QUANTITY_SUCCESS,
+          payload: {
+            cartId,
+            newQuantity,
+            updatedItem: response.data
+          }
+        })
+        fetch(false)(dispatch)
+      })
+      .catch(error => {
+        dispatch({
+          type: WISH_LIST_UPDATE_QUANTITY_FAIL,
+          error
+        })
+        notificationsActions.show({
+          type: 'error',
+          title: i18n.t('Error'),
+          text: i18n.t('Failed to update product quantity in the wish list.')
+        })(dispatch)
       })
   }
 }

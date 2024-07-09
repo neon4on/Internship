@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  I18nManager
+  I18nManager,
+  Button
 } from 'react-native'
 import theme from '../config/theme'
 import { SwipeListView } from 'react-native-swipe-list-view'
@@ -19,6 +20,7 @@ import * as wishListActions from '../redux/actions/wishListActions'
 
 // Components
 import MyIcon from '../components/Icon'
+import { add as addToCart } from '../redux/actions/cartActions'
 
 // Utils
 import i18n from '../utils/i18n'
@@ -115,13 +117,35 @@ const styles = StyleSheet.create({
   backRightBtnRight: {
     backgroundColor: 'tomato',
     right: 0
-  }
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  quantityButton: {
+    fontSize: 20,
+    paddingHorizontal: 10,
+  },
+  quantityText: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+  },
+  addToCartButton: {
+    marginTop: 10,
+  },
+  addToCartButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
 })
 
 export const WishListScreen = ({ navigation }) => {
+  const coupons = useSelector(state => state.cart.coupons)
   const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(true)
   const wishList = useSelector(state => state.wishList)
+  const [quantities, setQuantities] = useState({})
 
   useLayoutEffect(() => {
     const fetchData = async () => {
@@ -131,6 +155,14 @@ export const WishListScreen = ({ navigation }) => {
     fetchData()
     setIsLoading(false)
   }, [])
+
+  useEffect(() => {
+    const initialQuantities = {}
+    wishList.items.forEach(item => {
+      initialQuantities[item.cart_id] = item.amount
+    })
+    setQuantities(initialQuantities)
+  }, [wishList.items])
 
   useEffect(() => {
     const setShareIcon = () => {
@@ -179,6 +211,41 @@ export const WishListScreen = ({ navigation }) => {
     setIsLoading(false)
   }
 
+  const handleQuantityChange = (cartId, newQuantity) => {
+    setQuantities(prevQuantities => ({
+      ...prevQuantities,
+      [cartId]: Math.max(1, newQuantity)
+    }))
+  }
+
+  const handleAddToCart = (product) => {
+    console.log('Attempting to add to cart:', product);
+    const cartItem = {
+      [product.product_id]: {
+        product_id: product.product_id,
+        amount: quantities[product.cart_id],
+        product_options: {}
+      }
+    }
+
+    dispatch(addToCart(cartItem, true, coupons))
+      .then((response) => {
+        console.log('Product added to cart successfully:', response);
+        Alert.alert('Успех', 'Товар добавлен в корзину');
+      })
+      .catch((error) => {
+        console.error('Error adding product to cart:', error);
+        console.error('Error details:', error.response ? error.response.data : 'No response data');
+        let errorMessage = 'Не удалось добавить товар в корзину. ';
+        if (error.response && error.response.data && error.response.data.message) {
+          errorMessage += error.response.data.message;
+        } else {
+          errorMessage += 'Пожалуйста, попробуйте еще раз.';
+        }
+        Alert.alert('Ошибка', errorMessage);
+      });
+  }
+
   const renderProductItem = item => {
     let productImage = null
     const imageUri = getImagePath(item)
@@ -204,8 +271,23 @@ export const WishListScreen = ({ navigation }) => {
               {item.product}
             </Text>
             <Text style={styles.productItemPrice}>
-              {item.amount} x {formatPrice(item.price_formatted.price)}
+              {formatPrice(item.price_formatted.price)}
             </Text>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity onPress={() => handleQuantityChange(item.cart_id, quantities[item.cart_id] - 1)}>
+                <Text style={styles.quantityButton}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantities[item.cart_id]}</Text>
+              <TouchableOpacity onPress={() => handleQuantityChange(item.cart_id, quantities[item.cart_id] + 1)}>
+                <Text style={styles.quantityButton}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.addToCartButton}>
+              <Button
+                title={i18n.t('В корзину')}
+                onPress={() => handleAddToCart(item)}
+              />
+            </View>
           </View>
         </View>
       </TouchableHighlight>

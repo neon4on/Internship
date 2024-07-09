@@ -1,23 +1,32 @@
-import React,  { useState } from 'react'
-import { connect } from 'react-redux'
-import { View, Text, Image, TouchableOpacity, StyleSheet, Button } from 'react-native'
-import theme from '../config/theme'
+import React, { useState } from 'react';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Button,
+  Alert
+} from 'react-native';
+import theme from '../config/theme';
 
 // Utils
-import toInteger from 'lodash/toInteger'
-import get from 'lodash/get'
-import i18n from '../utils/i18n'
+import toInteger from 'lodash/toInteger';
+import get from 'lodash/get';
+import i18n from '../utils/i18n';
 import {
   PRODUCT_IMAGE_WIDTH,
   formatPrice,
   getImagePath,
   PRODUCT_NUM_COLUMNS
-} from '../utils'
+} from '../utils';
 
 // Components
-import StarsRating from './StarsRating'
+import StarsRating from './StarsRating';
+import { add as addToCart } from '../redux/actions/cartActions'; // Импортируем действие
 
-const RATING_STAR_SIZE = 14
+const RATING_STAR_SIZE = 14;
 
 const styles = StyleSheet.create({
   container: {
@@ -31,7 +40,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    height: PRODUCT_IMAGE_WIDTH + 105,
+    height: PRODUCT_IMAGE_WIDTH + 175, // Увеличенная высота
     maxWidth: `${Math.floor(94 / PRODUCT_NUM_COLUMNS)}%`
   },
   productImage: {
@@ -40,16 +49,20 @@ const styles = StyleSheet.create({
   },
   description: {
     paddingTop: 8,
-    paddingBottom: 8
+    paddingBottom: 8,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%'
   },
   productName: {
     color: '#2b2b2b',
     fontWeight: 'bold',
-    textAlign: 'left'
+    textAlign: 'center'
   },
   productPrice: {
     fontWeight: 'bold',
-    textAlign: 'left',
+    textAlign: 'center',
     color: theme.$darkColor
   },
   listDiscountWrapper: {
@@ -66,12 +79,13 @@ const styles = StyleSheet.create({
   },
   priceWrapper: {
     flex: 1,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'center'
   },
   listPriceText: {
     textDecorationLine: 'line-through',
     color: theme.$darkColor,
-    textAlign: 'left',
+    textAlign: 'center',
     paddingRight: 4,
     paddingTop: 2,
     fontSize: 12
@@ -84,45 +98,66 @@ const styles = StyleSheet.create({
     marginLeft: -10,
     marginRight: -10,
     marginTop: 0
+  },
+  quantityWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 10
+  },
+  quantityButton: {
+    borderWidth: 1,
+    borderColor: theme.$productBorderColor,
+    padding: 5,
+    borderRadius: 5
+  },
+  quantityText: {
+    marginHorizontal: 10,
+    fontSize: 16
   }
-})
+});
 
-const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
+const ProductListView = ({ product, settings, auth, onPress }) => {
+  const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const dispatch = useDispatch();
+
+  const coupons = useSelector(state => state.cart.coupons);
 
   const handleAddToCart = () => {
     const { item } = product;
-    const requiredOptions = item.options.filter(option => option.required);
+    console.log('Attempting to add to cart:', item);
 
-    const hasSelectedAllRequiredOptions = requiredOptions.every(option => {
-      const selectedOption = selectedOptions[option.selectDefaultId];
-      return selectedOption && selectedOption.variant_id !== undefined;
-    });
+    const cartItem = {
+      [item.product_id]: {
+        product_id: item.product_id,
+        amount: quantity,
+        product_options: selectedOptions
+      }
+    };
 
-    if (hasSelectedAllRequiredOptions) {
-      const cartItem = {
-        productId: item.product_id,
-        quantity: 1,
-        options: selectedOptions
-      };
-      addToCart(cartItem);
-    } else {
-      Alert.alert(
-        'Выберите обязательные параметры',
-        'Пожалуйста, выберите все обязательные параметры перед добавлением товара в корзину.',
-        [{ text: 'OK' }]
-      );
-    }
+    console.log('Dispatching add to cart action with:', cartItem);
+    dispatch(addToCart(cartItem, true, coupons))
+      .then((response) => {
+        console.log('Product added to cart successfully:', response);
+        Alert.alert('Успех', 'Товар добавлен в корзину');
+      })
+      .catch((error) => {
+        console.error('Error adding product to cart:', error);
+        Alert.alert('Ошибка', 'Не удалось добавить товар в корзину. Пожалуйста, попробуйте еще раз.');
+      });
   };
 
+  
+
   const renderDiscount = () => {
-    const { item } = product
+    const { item } = product;
 
     if (!item.list_discount_prc && !item.discount_prc) {
-      return null
+      return null;
     }
 
-    const discount = item.list_discount_prc || item.discount_prc
+    const discount = item.list_discount_prc || item.discount_prc;
 
     return (
       <View style={styles.listDiscountWrapper}>
@@ -130,27 +165,27 @@ const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
           {i18n.t('Discount')} {`${discount}%`}
         </Text>
       </View>
-    )
-  }
+    );
+  };
 
   const renderPrice = () => {
-    const { item } = product
-    const productTaxedPrice = get(item, 'taxed_price_formatted.price', '')
+    const { item } = product;
+    const productTaxedPrice = get(item, 'taxed_price_formatted.price', '');
     const productPrice =
-      productTaxedPrice || get(item, 'price_formatted.price', product.price)
-    let discountPrice = null
+      productTaxedPrice || get(item, 'price_formatted.price', product.price);
+    let discountPrice = null;
 
     if (toInteger(item.discount_prc)) {
-      discountPrice = item.base_price_formatted.price
+      discountPrice = item.base_price_formatted.price;
     } else if (toInteger(item.list_price)) {
-      discountPrice = item.list_price_formatted.price
+      discountPrice = item.list_price_formatted.price;
     }
 
-    const isProductPriceZero = Math.ceil(item.price) === 0
+    const isProductPriceZero = Math.ceil(item.price) === 0;
     const showDiscount =
-      isProductPriceZero && (item.discount_prc || item.list_discount_prc)
+      !isProductPriceZero && (item.discount_prc || item.list_discount_prc);
     const isForbiddenShopping =
-      settings.checkout.allowAnonymousShopping === 'hide_price_and_add_to_cart'
+      settings.checkout.allowAnonymousShopping === 'hide_price_and_add_to_cart';
 
     const renderProductPrice = () => {
       if (isForbiddenShopping && !auth.logged) {
@@ -158,15 +193,15 @@ const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
           <Text numberOfLines={2} style={styles.productPrice}>
             {i18n.t('Sign in to view price')}
           </Text>
-        )
+        );
       }
 
       return (
         <Text numberOfLines={1} style={styles.productPrice}>
           {formatPrice(productPrice)}
         </Text>
-      )
-    }
+      );
+    };
 
     return (
       <View style={styles.priceWrapper}>
@@ -179,8 +214,8 @@ const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
           renderProductPrice()
         )}
       </View>
-    )
-  }
+    );
+  };
 
   const renderRating = () => {
     return (
@@ -189,11 +224,11 @@ const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
         size={RATING_STAR_SIZE}
         isRatingSelectionDisabled
       />
-    )
-  }
+    );
+  };
 
-  const { item } = product
-  const imageUri = getImagePath(item)
+  const { item } = product;
+  const imageUri = getImagePath(item);
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
@@ -214,15 +249,28 @@ const ProductListView = ({ product, settings, auth, onPress, addToCart }) => {
         </Text>
         {renderRating()}
         {renderPrice()}
-        {/* <Button title="В корзину" onPress={handleAddToCart} /> */}
+        <View style={styles.quantityWrapper}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => setQuantity(Math.max(1, quantity - 1))}>
+            <Text>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantityText}>{quantity}</Text>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => setQuantity(quantity + 1)}>
+            <Text>+</Text>
+          </TouchableOpacity>
+        </View>
+        <Button title="Добавить в корзину" onPress={handleAddToCart} />
       </View>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
-const MemoizedProductListView = React.memo(ProductListView)
+const MemoizedProductListView = React.memo(ProductListView);
 
 export default connect(state => ({
   settings: state.settings,
   auth: state.auth
-}))(MemoizedProductListView)
+}))(MemoizedProductListView);
