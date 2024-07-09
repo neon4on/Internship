@@ -23,12 +23,20 @@ export const fetchReviews = () => {
     dispatch(fetchReviewsRequest());
     try {
       const response = await AxiosInstance.get('/sra_discussion_messages');
-      console.log('Response from API:', response.data);
-      if (response.data && response.data.posts) {
-        dispatch(fetchReviewsSuccess(response.data.posts));
+      console.log('API response:', response.data);
+      
+      let posts = [];
+      if (response.data && response.data.data && Array.isArray(response.data.data.posts)) {
+        posts = response.data.data.posts;
+      } else if (response.data && Array.isArray(response.data)) {
+        posts = response.data;
+      } else if (response.data && response.data.posts && Array.isArray(response.data.posts)) {
+        posts = response.data.posts;
       } else {
         throw new Error('Invalid response structure');
       }
+      
+      dispatch(fetchReviewsSuccess(posts));
     } catch (error) {
       console.error('Error fetching reviews:', error.message);
       dispatch(fetchReviewsFailure(error.message));

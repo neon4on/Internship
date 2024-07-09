@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import AxiosInstance from '../services/api';
-import { useDispatch } from 'react-redux';
-import { fetchReviews } from '../redux/actions/reviewsActions';
-import i from '../utils/i18n_local'
+import i from '../utils/i18n_local';
 
-const SubmitReviewScreen = ({ navigation }) => {
+const SubmitReviewScreen = ({ navigation, route }) => {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
-  const dispatch = useDispatch();
 
   const handleSubmit = async () => {
     if (!name || !message) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert(i.t('Error'), i.t('Please fill all fields'));
       return;
     }
 
@@ -22,23 +19,23 @@ const SubmitReviewScreen = ({ navigation }) => {
         message,
       });
 
-      console.log('Response:', response);
-
-      if (response.status === 201) {
-        Alert.alert('Success', 'Your review has been submitted');
-        dispatch(fetchReviews());
-        navigation.goBack();
-      } else {
-        Alert.alert('Error', 'Failed to submit review');
-      }
+      Alert.alert(i.t('Success'), i.t('Your review has been submitted'), [{
+        text: i.t('OK'),
+        onPress: () => {
+          if (route.params?.onReviewSubmitted) {
+            route.params.onReviewSubmitted();
+          }
+          navigation.goBack();
+        }
+      }]);
     } catch (error) {
-      console.log('Error:', error);
+      console.error('Error:', error.message);
       if (error.response) {
-        console.log('Response data:', error.response.data);
-        console.log('Response status:', error.response.status);
-        console.log('Response headers:', error.response.headers);
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
       }
-      Alert.alert('Error', 'An error occurred while submitting your review');
+      Alert.alert(i.t('Error'), i.t('An error occurred while submitting your review'));
     }
   };
 
