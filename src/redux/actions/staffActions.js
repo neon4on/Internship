@@ -1,5 +1,4 @@
 import AxiosInstance from '../../services/api';
-import { Platform } from 'react-native';
 
 export const FETCH_STAFF_REQUEST = 'FETCH_STAFF_REQUEST';
 export const FETCH_STAFF_SUCCESS = 'FETCH_STAFF_SUCCESS';
@@ -31,12 +30,12 @@ export const fetchStaff = () => {
   return async (dispatch) => {
     dispatch(fetchStaffRequest());
     try {
-      const response = await AxiosInstance.get('/sra_staff');
+      console.log('Request URL:', `${AxiosInstance.defaults.baseURL}staff_management_valeriy`);
+      const response = await AxiosInstance.get('staff_management_valeriy');
       console.log('Full response:', response);
-      console.log('Response data:', response.data);
-
-      if (response.data && Array.isArray(response.data) && response.data.every(item => item.staff_id)) {
-        const formattedData = response.data.map(item => ({
+      
+      if (response.data && Array.isArray(response.data.staff)) {
+        const formattedData = response.data.staff.map(item => ({
           id: item.staff_id,
           name: item.name,
           job_title: item.job_title,
@@ -51,10 +50,13 @@ export const fetchStaff = () => {
           city: item.city,
           zipcode: item.zipcode,
           address: item.address,
-          image_path: item.image_path,
+          image_path: item.main_pair?.icon?.https_image_path || null,
+          timestamp: item.timestamp
         }));
+        console.log('Formatted data:', formattedData);
         dispatch(fetchStaffSuccess(formattedData));
       } else {
+        console.error('Unexpected response structure:', response.data);
         throw new Error('Invalid response structure');
       }
     } catch (error) {
@@ -82,12 +84,15 @@ export const fetchStaffDetail = (staffId) => {
   return async (dispatch) => {
     dispatch(fetchStaffDetailRequest());
     try {
-      const response = await AxiosInstance.get(`/sra_staff/${staffId}`);
-      console.log('Staff detail response:', response.data);
-      if (response.data && response.data.staff_id) {
+      console.log('Fetching staff detail for ID:', staffId);
+      const response = await AxiosInstance.get(`staff_management_valeriy/${staffId}`);
+      console.log('Full staff detail response:', response);
+      
+      if (response.data) {
+        console.log('Staff detail data:', response.data);
         dispatch(fetchStaffDetailSuccess(response.data));
       } else {
-        throw new Error('Invalid response structure');
+        throw new Error('No data in response');
       }
     } catch (error) {
       console.error('Fetch staff detail error:', error);
@@ -149,7 +154,7 @@ export const saveStaff = (staffData, staffId) => {
       console.log('Sending data:', formData);
       
       console.log('Making API request');
-      const response = await AxiosInstance.post('/sra_staff', formData, {
+      const response = await AxiosInstance.post('staff_management_valeriy', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -183,7 +188,7 @@ export const createStaff = (staffData) => {
   return async (dispatch) => {
     dispatch(saveStaffRequest());
     try {
-      const response = await AxiosInstance.post('/sra_staff', staffData, {
+      const response = await AxiosInstance.post('staff_management_valeriy', staffData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

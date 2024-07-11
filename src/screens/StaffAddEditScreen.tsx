@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, StyleSheet, Text, TextInput, View, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { 
+  Button, StyleSheet, Text, TextInput, View, ScrollView, 
+  Image, TouchableOpacity, Alert, ActivityIndicator
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { fetchStaffDetail, createStaff, saveStaff } from '../redux/actions/staffActions';
 import i from '../utils/i18n_local';
@@ -15,8 +19,8 @@ const StaffAddEditScreen = ({ route, navigation }) => {
     job_title: '',
     position: '',
     email: '',
-    status: '',
-    gender: '',
+    status: 'A',
+    gender: 'M',
     short_description: '',
     country: '',
     state: '',
@@ -39,8 +43,8 @@ const StaffAddEditScreen = ({ route, navigation }) => {
         job_title: staffDetail.job_title || '',
         position: staffDetail.position || '',
         email: staffDetail.email || '',
-        status: staffDetail.status || '',
-        gender: staffDetail.gender || '',
+        status: staffDetail.status || 'A',
+        gender: staffDetail.gender || 'M',
         short_description: staffDetail.short_description || '',
         country: staffDetail.country || '',
         state: staffDetail.state || '',
@@ -87,7 +91,19 @@ const StaffAddEditScreen = ({ route, navigation }) => {
     });
   };
 
+  const validateForm = () => {
+    const requiredFields = ['name', 'job_title', 'email'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    if (missingFields.length > 0) {
+      Alert.alert('Error', `Please fill in the following fields: ${missingFields.join(', ')}`);
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     try {
       if (staffId) {
         await dispatch(saveStaff(formData, staffId));
@@ -104,9 +120,16 @@ const StaffAddEditScreen = ({ route, navigation }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Button title={i.t('Save')} onPress={handleSubmit} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
           {formData.image ? (
@@ -118,47 +141,55 @@ const StaffAddEditScreen = ({ route, navigation }) => {
             <Text style={styles.imagePlaceholder}>{i.t('Tap to select image')}</Text>
           )}
         </TouchableOpacity>
+        
         <Text style={styles.label}>{i.t('Name:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.name}
           onChangeText={(text) => handleInputChange('name', text)}
         />
+
         <Text style={styles.label}>{i.t('Job Title:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.job_title}
           onChangeText={(text) => handleInputChange('job_title', text)}
         />
-        <Text style={styles.label}>{i.t('Position:')}</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.position}
-          onChangeText={(text) => handleInputChange('position', text)}
-        />
+
         <Text style={styles.label}>{i.t('Email:')}</Text>
         <TextInput
           style={styles.input}
           value={formData.email}
           onChangeText={(text) => handleInputChange('email', text)}
+          keyboardType="email-address"
         />
+
         <Text style={styles.label}>{i.t('Status:')}</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.status}
-          onChangeText={(text) => handleInputChange('status', text)}
-        />
+        <Picker
+          selectedValue={formData.status}
+          style={styles.picker}
+          onValueChange={(itemValue) => handleInputChange('status', itemValue)}
+        >
+          <Picker.Item label="Active" value="A" />
+          <Picker.Item label="Disabled" value="D" />
+        </Picker>
+
         <Text style={styles.label}>{i.t('Gender:')}</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.gender}
-          onChangeText={(text) => handleInputChange('gender', text)}
-        />
+        <Picker
+          selectedValue={formData.gender}
+          style={styles.picker}
+          onValueChange={(itemValue) => handleInputChange('gender', itemValue)}
+        >
+          <Picker.Item label="Male" value="M" />
+          <Picker.Item label="Female" value="F" />
+        </Picker>
+
         <Text style={styles.label}>{i.t('Short description:')}</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, styles.multilineInput]}
           value={formData.short_description}
           onChangeText={(text) => handleInputChange('short_description', text)}
+          multiline
         />
         <Text style={styles.label}>{i.t('Country:')}</Text>
         <TextInput
@@ -190,6 +221,7 @@ const StaffAddEditScreen = ({ route, navigation }) => {
           value={formData.address}
           onChangeText={(text) => handleInputChange('address', text)}
         />
+        <Button title={i.t('Save')} onPress={handleSubmit} />
       </ScrollView>
     </View>
   );
@@ -199,6 +231,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContainer: {
     padding: 16,
@@ -229,8 +266,17 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 16,
+  },
+  multilineInput: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  picker: {
     marginBottom: 16,
   },
 });

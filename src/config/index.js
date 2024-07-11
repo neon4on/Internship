@@ -25,6 +25,3 @@ export default {
   googlePaySupportedNetworks: [],
   layoutId: 2,
 };
-
-export const API_URL = 'https://dmitriy.sandbox-ecom-labs.com/api/4.0/'; // Замените на реальный URL вашего бэкенда
-

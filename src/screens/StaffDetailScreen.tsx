@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { fetchStaffDetail } from '../redux/actions/staffActions';
 import i from '../utils/i18n_local';
 import config from '../config';
+import HTML from 'react-native-render-html';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 32;
@@ -11,7 +12,8 @@ const imageSize = width - 32;
 const StaffDetailScreen = ({ route, navigation }) => {
   const { staffId } = route.params;
   const dispatch = useDispatch();
-  const { detail: staffDetail, loading, error } = useSelector((state) => state.staff);
+  const { detail: staffDetailData, loading, error } = useSelector((state) => state.staff);
+  const [staffDetail, setStaffDetail] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {
@@ -19,18 +21,28 @@ const StaffDetailScreen = ({ route, navigation }) => {
   }, [dispatch, staffId]);
 
   useEffect(() => {
-    if (staffDetail && staffDetail.main_pair && staffDetail.main_pair.icon && staffDetail.main_pair.icon.image_path) {
-      const imagePath = staffDetail.main_pair.icon.image_path;
-      const fullImageUrl = `${config.siteUrl}${imagePath}`;
-      setImageUrl(fullImageUrl);
-    } else {
-      setImageUrl(null);
+    if (staffDetailData && staffDetailData.staff && staffDetailData.staff.length > 0) {
+      const staff = staffDetailData.staff.find(s => s.staff_id === staffId) || staffDetailData.staff[0];
+      setStaffDetail(staff);
+      if (staff.main_pair && staff.main_pair.icon && staff.main_pair.icon.https_image_path) {
+        setImageUrl(staff.main_pair.icon.https_image_path);
+      } else {
+        setImageUrl(null);
+      }
     }
-  }, [staffDetail]);
+  }, [staffDetailData, staffId]);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     navigation.navigate('StaffAddEditScreen', { staffId });
-  };
+  }, [navigation, staffId]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button title={i.t('Edit')} onPress={handleEdit} />
+      ),
+    });
+  }, [navigation, handleEdit]);
 
   if (loading) {
     return (
@@ -43,7 +55,7 @@ const StaffDetailScreen = ({ route, navigation }) => {
   if (error) {
     return (
       <View style={styles.container}>
-        <Text>Error: {error}</Text>
+        <Text style={styles.errorText}>Error: {error}</Text>
       </View>
     );
   }
@@ -51,57 +63,55 @@ const StaffDetailScreen = ({ route, navigation }) => {
   if (!staffDetail) {
     return (
       <View style={styles.container}>
-        <Text>No staff details available</Text>
+        <Text style={styles.errorText}>{i.t('No staff details available')}</Text>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <Button title={i.t('Edit')} onPress={handleEdit} />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.imageContainer}>
-          {imageUrl ? (
-            <Image 
-              source={{ uri: imageUrl }} 
-              style={styles.image}
-              resizeMode="cover"
-              onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
-            />
-          ) : (
-            <View style={styles.placeholder}>
-              <Text>{i.t('No Image Available')}</Text>
-            </View>
-          )}
-        </View>
-        <Text style={styles.label}>{i.t('Name:')}</Text>
-        <Text style={styles.value}>{staffDetail.name}</Text>
-        <Text style={styles.label}>{i.t('Job Title:')}</Text>
-        <Text style={styles.value}>{staffDetail.job_title}</Text>
-        <Text style={styles.label}>{i.t('Email:')}</Text>
-        <Text style={styles.value}>{staffDetail.email}</Text>
-        <Text style={styles.label}>{i.t('Position:')}</Text>
-        <Text style={styles.value}>{staffDetail.position}</Text>
-        <Text style={styles.label}>{i.t('Status:')}</Text>
-        <Text style={styles.value}>{staffDetail.status}</Text>
-        <Text style={styles.label}>{i.t('Gender:')}</Text>
-        <Text style={styles.value}>{staffDetail.gender}</Text>
-        <Text style={styles.label}>{i.t('Short description:')}</Text>
-        <Text style={styles.value}>{staffDetail.short_description}</Text>
-        <Text style={styles.label}>{i.t('Lang_code:')}</Text>
-        <Text style={styles.value}>{staffDetail.lang_code}</Text>
-        <Text style={styles.label}>{i.t('Country:')}</Text>
-        <Text style={styles.value}>{staffDetail.country}</Text>
-        <Text style={styles.label}>{i.t('State:')}</Text>
-        <Text style={styles.value}>{staffDetail.state}</Text>
-        <Text style={styles.label}>{i.t('City:')}</Text>
-        <Text style={styles.value}>{staffDetail.city}</Text>
-        <Text style={styles.label}>{i.t('Zipcode:')}</Text>
-        <Text style={styles.value}>{staffDetail.zipcode}</Text>
-        <Text style={styles.label}>{i.t('Address:')}</Text>
-        <Text style={styles.value}>{staffDetail.address}</Text>
-      </ScrollView>
+  const renderDetailItem = (label, value) => (
+    <View style={styles.detailItem}>
+      <Text style={styles.label}>{i.t(label)}</Text>
+      <Text style={styles.value}>{value !== undefined && value !== null ? value : 'N/A'}</Text>
     </View>
+  );
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.imageContainer}>
+        {imageUrl ? (
+          <Image 
+            source={{ uri: imageUrl }} 
+            style={styles.image}
+            resizeMode="cover"
+            onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
+          />
+        ) : (
+          <View style={styles.placeholder}>
+            <Text>{i.t('No Image Available')}</Text>
+          </View>
+        )}
+      </View>
+      {renderDetailItem('Name', staffDetail.name)}
+      {renderDetailItem('Job Title', staffDetail.job_title)}
+      {renderDetailItem('Email', staffDetail.email)}
+      {renderDetailItem('Position', staffDetail.position)}
+      {renderDetailItem('Status', staffDetail.status === 'A' ? 'Active' : 'Inactive')}
+      {renderDetailItem('Gender', staffDetail.gender === 'M' ? 'Male' : 'Female')}
+      <View style={styles.detailItem}>
+        <Text style={styles.label}>{i.t('Short description')}</Text>
+        {staffDetail.short_description ? (
+          <HTML source={{ html: staffDetail.short_description }} contentWidth={width - 32} />
+        ) : (
+          <Text style={styles.value}>N/A</Text>
+        )}
+      </View>
+      {renderDetailItem('Language', staffDetail.lang_code)}
+      {renderDetailItem('Country', staffDetail.country)}
+      {renderDetailItem('State', staffDetail.state)}
+      {renderDetailItem('City', staffDetail.city)}
+      {renderDetailItem('Zipcode', staffDetail.zipcode)}
+      {renderDetailItem('Address', staffDetail.address)}
+    </ScrollView>
   );
 };
 
@@ -120,6 +130,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 8,
     overflow: 'hidden',
+    backgroundColor: '#fff',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   image: {
     width: '100%',
@@ -132,13 +148,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ccc',
   },
+  detailItem: {
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
   label: {
     fontWeight: 'bold',
-    fontSize: 16,
-    marginTop: 16,
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
   value: {
     fontSize: 16,
+    color: '#333',
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
   },
 });
 

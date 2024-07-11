@@ -23,20 +23,24 @@ const staffReducer = (state = initialState, action) => {
     case FETCH_STAFF_DETAIL_REQUEST:
     case SAVE_STAFF_REQUEST:
       return { ...state, loading: true, error: null };
+
     case FETCH_STAFF_SUCCESS:
-      console.log('Fetched staff:', action.payload);
-      return { ...state, loading: false, list: action.payload };
+
+      console.log('Reducer: FETCH_STAFF_SUCCESS', action.payload);
+      return { ...state, loading: false, list: action.payload, error: null };
+
+
     case FETCH_STAFF_DETAIL_SUCCESS:
-      console.log('Fetched staff detail:', action.payload);
-      return { ...state, loading: false, detail: action.payload };
+      return { ...state, loading: false, detail: action.payload, error: null };
+
     case SAVE_STAFF_SUCCESS:
-      console.log('Saved staff:', action.payload);
-      return { ...state, loading: false };
+      return { ...state, loading: false, error: null };
+
     case FETCH_STAFF_FAILURE:
     case FETCH_STAFF_DETAIL_FAILURE:
     case SAVE_STAFF_FAILURE:
-      console.error('Action failure:', action.payload);
       return { ...state, loading: false, error: action.payload };
+
     default:
       return state;
   }
